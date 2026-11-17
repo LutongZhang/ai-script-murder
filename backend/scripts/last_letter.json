@@ -1,0 +1,118 @@
+{
+  "id": "last_letter",
+  "title": "末班来信",
+  "subtitle": "列车停在雪夜，一封信没有抵达终点。",
+  "summary": "北行末班列车因雪崩停在隧道前。23:20，收藏家沈怀川死在上锁的包厢里。列车无法前进，四个与他有关的人被请到餐车。你手里的那封信，或许比车票更难解释。",
+  "tags": ["悬疑", "密室", "旧事重提"],
+  "duration": "40–70 分钟",
+  "difficulty": "进阶",
+  "theme": "train",
+  "locationLabel": "列车",
+  "searchLimit": 3,
+  "victim": "沈怀川",
+  "killer": "secretary",
+  "publicEvidence": ["medical_note", "locked_door"],
+  "truth": "秘书许知遥发现沈怀川准备把伪造拍卖账目的责任全部推给她。22:58，她用总钥匙打开包厢，以整理次日材料为由进入，用收藏展示箱的黄铜镇纸击中他的后脑，随后清理镇纸并把它藏入餐车服务柜。她带走指控自己的责任书，离开后用总钥匙锁门，伪造从23:00一直在办公室的说法。顾鸣隐瞒的是违规使用总钥匙，唐梨隐瞒的是追查父亲旧案，陆行舟隐瞒的是赝品交易。密室是离开后从外部上锁造成的。",
+  "timeline": [
+    {"id": "halt", "time": "22:40", "title": "列车因雪崩停车", "detail": "列车停在隧道前，所有车门保持关闭，无人上下车。", "unlocked_by_default": true},
+    {"id": "argument", "time": "22:45", "title": "餐车里的争执", "detail": "古董商陆行舟与沈怀川因一笔拍卖交易发生争执。", "unlocked_by_default": true},
+    {"id": "found", "time": "23:20", "title": "上锁包厢中的死者", "detail": "沈怀川没有回应敲门，列车长用总钥匙开门，发现他倒在书桌旁。", "unlocked_by_default": true}
+  ],
+  "evidence": [
+    {"id": "medical_note", "title": "随车医生的记录", "summary": "死者后脑受钝器击打，死亡约在22:55至23:05。", "detail": "伤口呈窄矩形，室内没有打斗痕迹，也没有发现凶器。"},
+    {"id": "locked_door", "title": "包厢门锁结构", "summary": "门从外部也可用总钥匙锁上，窗户固定无法开启。", "detail": "发现时房门上锁，内侧安全链没有挂上；不能据此认定无人离开。"},
+    {"id": "key_log", "title": "总钥匙借用簿", "summary": "22:50，许知遥签名借走备用总钥匙；23:12归还。", "detail": "她填写用途为替沈怀川取文件，时间覆盖死亡区间。"},
+    {"id": "responsibility_letter", "title": "未寄出的责任书", "summary": "沈怀川准备让秘书独自承担伪造拍卖账目的责任。", "detail": "信封写着许知遥的名字，稿件原定次日送交调查人员，她曾参与账目整理。"},
+    {"id": "brass_weight", "title": "黄铜镇纸", "summary": "餐车服务柜里有一枚被擦拭过的黄铜镇纸。", "detail": "窄矩形边缘与伤口相符，底部缝隙残留血迹，侧面粘着一根深蓝羊毛纤维。"},
+    {"id": "blue_scarf", "title": "深蓝围巾", "summary": "秘书座位旁的围巾少了一小簇纤维。", "detail": "许知遥今晚戴过它。纤维颜色和材质与镇纸上残留的一致。"},
+    {"id": "service_note", "title": "餐车服务记录", "summary": "23:08，服务员看见许知遥独自走进服务柜所在的备餐区。", "detail": "她没有点餐，停留约两分钟；这与一直在办公室的说法不符。"},
+    {"id": "old_news", "title": "七年前的旧报", "summary": "一名修复师因伪造藏品被追责，报道里出现沈怀川的名字。", "detail": "唐梨的父亲正是那名修复师。报道没有证明今晚凶案与她有关。"},
+    {"id": "forgery_receipt", "title": "赝品交易收据", "summary": "陆行舟经手过一件被沈怀川识破的赝品。", "detail": "他有经济纠纷，却不能据此推断他在死亡时间进入了包厢。"},
+    {"id": "dining_receipt", "title": "餐车点单与服务单", "summary": "陆行舟22:52点餐，23:04与23:07均与服务员交谈。", "detail": "服务员确认他始终坐在餐车。死亡区间内没有离开。"},
+    {"id": "platform_order", "title": "值班调度记录", "summary": "顾鸣22:55至23:10在驾驶室与调度通话。", "detail": "通话录音连续，驾驶员在场；他承认更早违规借出备用总钥匙。"},
+    {"id": "corridor_sighting", "title": "走廊目击笔记", "summary": "唐梨22:58见一名戴深蓝围巾的人进入沈怀川包厢。", "detail": "她只看到了背影，没有看清脸。23:06又听到钥匙锁门声。"}
+  ],
+  "locations": [
+    {"id": "compartment", "name": "死者包厢", "description": "没有挂上的安全链，和空出的展示箱。", "evidence": ["locked_door"]},
+    {"id": "office", "name": "列车办公室", "description": "总钥匙借用簿与值班记录。", "evidence": ["key_log", "platform_order"]},
+    {"id": "pantry", "name": "备餐区", "description": "服务柜里多了一件不属于餐车的东西。", "evidence": ["brass_weight", "service_note"]},
+    {"id": "seat", "name": "秘书座位", "description": "摊开的文件夹旁放着一条围巾。", "evidence": ["blue_scarf"]},
+    {"id": "mail", "name": "行李架", "description": "一只待寄出的信封，藏在公文包夹层。", "evidence": ["responsibility_letter"]},
+    {"id": "dining", "name": "餐车", "description": "服务员保留了今晚的点单和服务单。", "evidence": ["dining_receipt"]},
+    {"id": "luggage", "name": "古董箱", "description": "包装夹层里的交易凭据。", "evidence": ["forgery_receipt"]},
+    {"id": "corridor", "name": "客车走廊", "description": "散落的旧报和一张刚写下的目击笔记。", "evidence": ["old_news", "corridor_sighting"]}
+  ],
+  "npcs": [
+    {
+      "id": "conductor", "name": "顾鸣", "role": "列车长",
+      "public_profile": "沉稳的老列车长，保管总钥匙，主张先核对每个人的时间。",
+      "private_secret": "违规把备用总钥匙借给秘书，怕因此丢掉工作。没有杀人。",
+      "initial_emotion": "防守",
+      "facts": ["22:50把备用总钥匙借给许知遥，23:12收回。", "22:55至23:10在驾驶室通话，驾驶员在场，没去死者包厢。", "23:20用自己的总钥匙开门发现尸体，安全链未挂。", "知道门可以从外部锁上，不知道凶手是谁。"],
+      "strategy": "维护秩序，避免承认违规借钥匙。借用簿被出示或有人愿意区分违规与杀人后承认，并用调度记录解释自己时间。不能把怀疑当成目击。",
+      "book": {
+        "intro": "你是顾鸣。你曾相信替熟客开一次方便之门无伤大雅，直到包厢里出了人命。钥匙是你的职责，也是别人最容易指向你的理由。",
+        "relationships": {"secretary": "你违规借给她总钥匙，她说只是取文件。", "reporter": "她一直盯着死者，问过包厢位置。", "dealer": "他在餐车和死者发生争执。"},
+        "starting": ["key_log", "platform_order"], "search": ["locked_door"],
+        "goals": [
+          {"title": "指认真正的凶手", "type": "vote_killer"},
+          {"title": "公开调度记录，证明你的值班时间", "type": "publish_evidence", "evidenceId": "platform_order"},
+          {"title": "避免成为最终被指认的人", "type": "avoid_accusation"}
+        ]
+      }
+    },
+    {
+      "id": "secretary", "name": "许知遥", "role": "私人秘书",
+      "public_profile": "熟悉死者的文件与行程，说话周到，对每份材料都很谨慎。",
+      "private_secret": "她是凶手。沈怀川准备让她独自承担伪造账目的罪责。她借总钥匙，22:58进入包厢，用黄铜镇纸杀人，23:06离开并从外部锁门，23:08把镇纸藏入备餐区，带走责任书。",
+      "initial_emotion": "冷静",
+      "facts": ["22:50从顾鸣处借钥匙，22:58进入包厢，23:12归还。", "发现次日要送出的责任书，自己参与整理账目，但不愿独自顶罪。", "在包厢用黄铜镇纸击打死者后脑，23:06锁门离开。", "23:08进入备餐区藏镇纸，擦拭时戴着深蓝围巾。", "没有人直接看见杀人过程。"],
+      "strategy": "先声称23:00后一直整理文件。借用簿和目击被出示时承认取文件，仍隐瞒杀人。面对服务记录承认去过备餐区。责任书、钥匙、镇纸与围巾构成证据链时才可能承认，不凭空编造别人杀人的目击。",
+      "book": {
+        "intro": "你是许知遥。你替沈怀川整理过无数封信，却没想到最后一封会把所有罪责都压给你。今晚你把那封信带走了，也做了无法收回的事。",
+        "relationships": {"conductor": "他借给你钥匙，你希望他继续隐瞒这件事。", "reporter": "她似乎知道七年前的账目问题。", "dealer": "他的赝品纠纷可以分散别人对你的注意。"},
+        "starting": ["responsibility_letter", "blue_scarf"], "search": ["forgery_receipt"],
+        "goals": [
+          {"title": "避免成为最终被指认的人", "type": "avoid_accusation"},
+          {"title": "避免责任书被公开", "type": "hide_evidence", "evidenceId": "responsibility_letter"}
+        ]
+      }
+    },
+    {
+      "id": "reporter", "name": "唐梨", "role": "随车记者",
+      "public_profile": "以旅行采访为名乘车，随身带着一本磨损的笔记。",
+      "private_secret": "七年前被追责的修复师是她父亲。她来追查沈怀川，想证明父亲被冤枉，没有杀人。",
+      "initial_emotion": "戒备",
+      "facts": ["父亲曾因藏品伪造被追责，沈怀川与当时交易有关。", "22:58在走廊看到戴深蓝围巾的背影进入包厢，没看清脸。", "23:06听到钥匙锁门声，自己一直在走廊另一端写笔记。", "没有进入包厢，也没有目击凶案。", "只掌握旧报与目击笔记，不知道真正凶手。"],
+      "strategy": "谨慎保护身份。得到信任或旧报被出示后承认父女关系，并分享目击。只能描述背影，不能断言看清凶手；以公开材料推理。",
+      "book": {
+        "intro": "你是唐梨。这趟车不是一次采访，而是你等了七年的机会。如今沈怀川再也不能回答你的问题，旧案却可能和今晚的秘密一起浮出水面。",
+        "relationships": {"conductor": "他能解释门锁，也可能隐瞒钥匙去向。", "secretary": "她熟悉死者账目，你想从她那里求证旧案。", "dealer": "他与死者争吵，也许知道藏品交易的内幕。"},
+        "starting": ["old_news", "corridor_sighting"], "search": ["service_note"],
+        "goals": [
+          {"title": "指认真正的凶手", "type": "vote_killer"},
+          {"title": "公开旧报，为父亲的旧案留下线索", "type": "publish_evidence", "evidenceId": "old_news"},
+          {"title": "避免成为最终被指认的人", "type": "avoid_accusation"}
+        ]
+      }
+    },
+    {
+      "id": "dealer", "name": "陆行舟", "role": "古董商",
+      "public_profile": "衣着讲究，刚与死者争吵过，急于把生意纠纷解释清楚。",
+      "private_secret": "他出售过赝品，被沈怀川识破；今晚想协商赔偿，没有杀人。",
+      "initial_emotion": "烦躁",
+      "facts": ["22:45在餐车因赝品赔偿与沈怀川争吵。", "22:52至23:10一直在餐车，服务员可证明。", "23:08看见许知遥进备餐区，没有看到她手里的东西。", "知道沈怀川经常把交易责任推给下属，但没看过责任书。", "自己的收据可证明赝品交易，不知道凶手是谁。"],
+      "strategy": "好面子，先隐瞒赝品。收据被出示后承认商业纠纷，用点单核对不在场。愿意交换目击自保；不能声称看见藏凶器。",
+      "book": {
+        "intro": "你是陆行舟。你来谈赔偿，不是来送命。可那场争吵让所有人先看向了你。保住声誉和摆脱杀人嫌疑，你可能没法两样都要。",
+        "relationships": {"conductor": "他可以帮你找服务员核对时间。", "secretary": "你看到她去了备餐区，不清楚原因。", "reporter": "她对旧交易很敏感，你怕她写出赝品内幕。"},
+        "starting": ["forgery_receipt", "dining_receipt"], "search": ["brass_weight"],
+        "goals": [
+          {"title": "指认真正的凶手", "type": "vote_killer"},
+          {"title": "公开点单记录，证明你的不在场", "type": "publish_evidence", "evidenceId": "dining_receipt"},
+          {"title": "避免成为最终被指认的人", "type": "avoid_accusation"}
+        ]
+      }
+    }
+  ]
+}

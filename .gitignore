@@ -1,0 +1,16 @@
+.DS_Store
+__pycache__/
+.pycache/
+*.py[cod]
+.venv/
+venv/
+node_modules/
+dist/
+.npm-cache/
+.screenshots/
+.uploads/
+*.log
+.env
+.env.*
+!.env.example
+*.timestamp-*.mjs

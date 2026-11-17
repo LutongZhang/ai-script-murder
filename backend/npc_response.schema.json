@@ -1,0 +1,16 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "reply": {"type": "string"},
+    "emotion": {
+      "type": "string",
+      "enum": ["冷静", "烦躁", "戒备", "紧绷", "防守", "松动", "配合", "慌张"]
+    },
+    "memory": {"type": "string"},
+    "evidenceIds": {"type": "array", "items": {"type": "string"}},
+    "voteId": {"type": ["string", "null"]},
+    "wantsPrivateChat": {"type": "boolean"}
+  },
+  "required": ["reply", "emotion", "memory", "evidenceIds", "voteId", "wantsPrivateChat"]
+}

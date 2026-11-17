@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 2,
+  "id": "way_out_west",
+  "title": "西部往事 · Way out West",
+  "subtitle": "铁路将至，仙人掌峡谷镇暗流涌动。",
+  "summary": "1884年春，加利福尼亚。仙人掌峡谷镇准备庆祝建镇二十周年，两家铁路公司的代表来到镇上。土地争执、不光彩的牌局、外乡人和与纳普塔亚人的纠纷，让庆典前的气氛格外紧张。官方10人免费版以秘密、个人目标、结盟与多条支线推动故事。",
+  "tags": ["西部", "多线博弈", "10人", "待补齐"],
+  "duration": "原作3–4小时",
+  "difficulty": "进阶",
+  "theme": "western",
+  "coverText": "西 部",
+  "locationLabel": "小镇",
+  "searchLimit": 3,
+  "availability": {
+    "status": "awaiting_materials",
+    "note": "已收录官方背景和10名角色简介。完整免费包需从发行方免费下单并通过邮件领取；目前缺各角色8页私人本、线索与道具卡、主持人真相。暂不能领取身份开局。原作的交易、战斗与中毒规则也需完整材料后再接入，当前未实现。"
+  },
+  "source": {
+    "title": "Way out West Free",
+    "publisher": "Freeform Games · Tracy Bose",
+    "url": "https://www.freeformgames.com/product/way-out-west-free/",
+    "language": "英文原作 · 中文资料简介",
+    "completeness": "官方介绍及背景；完整10人版尚未取得",
+    "note": "官方说明完整包包含主持人手册、每人8页角色本、物品卡、能力卡、战斗与中毒规则、结局材料。不凭简介补造原作秘密或凶手。"
+  },
+  "mode": {
+    "id": "western_pending", "label": "自由博弈（规则待补齐）",
+    "phases": [
+      {"id": "read", "kind": "reading", "label": "读本", "objective": "待完整角色材料与主持人规则补齐。", "actions": []},
+      {"id": "ending", "kind": "reveal", "label": "结局", "objective": "待原作真相与结局材料补齐。", "actions": []}
+    ]
+  },
+  "npcs": [
+    {"id": "blaise", "name": "布莱兹·萨德勒", "role": "年迈的酒馆老板", "public_profile": "Blaise Sadler，年迈的酒馆老板。私人身份与目标待原作角色本。", "initial_emotion": "冷静"},
+    {"id": "clem", "name": "克莱姆·帕勒姆", "role": "中西铁路公司代表", "public_profile": "Clem Parham，从城里来的Mid West Rail代表。私人身份与目标待原作角色本。", "initial_emotion": "冷静"},
+    {"id": "dan", "name": "丹·费尔韦瑟", "role": "副警长", "public_profile": "Dan Fairweather，行动较慢、诚实的副警长。私人身份与目标待原作角色本。", "initial_emotion": "冷静"},
+    {"id": "doc", "name": "多克·法拉第", "role": "知名赌徒", "public_profile": "Doc Faraday，声名狼藉的赌徒。私人身份与目标待原作角色本。", "initial_emotion": "冷静"},
+    {"id": "elijah", "name": "伊莱贾·恩特威斯尔", "role": "巡回传教士", "public_profile": "Elijah Entwhistle，旅行中的传教士。私人身份与目标待原作角色本。", "initial_emotion": "冷静"},
+    {"id": "john", "name": "约翰·保尔森", "role": "镇上法官", "public_profile": "John Paulson，深受小镇敬重的法官。私人身份与目标待原作角色本。", "initial_emotion": "冷静"},
+    {"id": "lucy", "name": "露西·卡尔霍恩", "role": "齐克的女儿", "public_profile": "Lucy Calhoun，Zeke的女儿，性格活泼、举止像男孩的年轻女性。私人身份与目标待原作角色本。", "initial_emotion": "冷静"},
+    {"id": "mel", "name": "梅尔·伊斯顿", "role": "西南铁路公司代表", "public_profile": "Mel Easton，从城里来的South West Rail代表。私人身份与目标待原作角色本。", "initial_emotion": "冷静"},
+    {"id": "deer", "name": "奔鹿", "role": "纳普塔亚女子", "public_profile": "Runs Like a Deer，来自原作虚构的Naptaya族群。私人身份与目标待原作角色本。", "initial_emotion": "冷静"},
+    {"id": "slick", "name": "斯利克·奥黑尔", "role": "牧场雇工", "public_profile": "Slick O’Hare，衣着邋遢、受雇干活的牧场工人。私人身份与目标待原作角色本。", "initial_emotion": "冷静"}
+  ]
+}

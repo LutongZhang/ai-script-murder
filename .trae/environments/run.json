@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "defaultActionId": "detective",
+  "actions": [
+    {
+      "id": "detective",
+      "name": "雨夜封锁 · AI 侦探",
+      "command": "NPC_AI_PROVIDER=traex npm --prefix frontend run build && NPC_AI_PROVIDER=traex python3 -u backend/server.py",
+      "cwd": ".",
+      "background": true,
+      "source": "agent",
+      "readiness": {
+        "outputPatterns": ["App running on http://127.0.0.1:8000"],
+        "timeoutMs": 60000
+      },
+      "open": {
+        "type": "preview",
+        "url": "http://127.0.0.1:8000"
+      }
+    }
+  ]
+}

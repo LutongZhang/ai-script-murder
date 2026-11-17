@@ -1,0 +1,45 @@
+{
+  "retrieved_at": "2026-11-12T14:28:41.306777+00:00",
+  "scope": "Publisher public materials for local reading; no permission to republish or adapt is inferred.",
+  "sources": [
+    {
+      "file": "way_out_west_official.html",
+      "url": "https://www.freeformgames.com/product/way-out-west-free/",
+      "reused_local_file": true,
+      "bytes": 640969,
+      "sha256": "f9daf3dbb9dcaf6aa1f49c86ef0b43f098844968effae18cfbb420b647c1d57c",
+      "text_file": "way_out_west_official.txt",
+      "text_characters": 23030
+    },
+    {
+      "file": "way_out_west_intro.pdf",
+      "url": "https://www.freeformgames.com/new/wp-content/uploads/2024/06/game_wow_intro.pdf",
+      "reused_local_file": true,
+      "bytes": 721459,
+      "sha256": "d97c8d8f9e1406feb49abb042367e125bc7adcee9000459fe42e3dffd7daedd6"
+    },
+    {
+      "file": "way_out_west_background.pdf",
+      "url": "https://www.freeformgames.com/new/wp-content/uploads/2024/06/wow_03_background.pdf",
+      "reused_local_file": true,
+      "bytes": 82943,
+      "sha256": "9c4d34232b6d6bd9c7a785a28f2b935bb259fdb7bc4e35178e0cb04104b98970"
+    },
+    {
+      "file": "ravenel_complete_kit.html",
+      "url": "https://www.your-scenario.com/en/murder-mystery-party/kit",
+      "reused_local_file": true,
+      "bytes": 126112,
+      "sha256": "097c2602aadc4abe66d3b2d326343672e6aa81c2594208f8b8fddc8567fde439",
+      "text_file": "ravenel_complete_kit.txt",
+      "text_characters": 21036
+    },
+    {
+      "file": "ravenel_complete_kit.pdf",
+      "url": "https://www.your-scenario.com/kits/halloween-murder-mystery-party-kit.pdf",
+      "reused_local_file": true,
+      "bytes": 390654,
+      "sha256": "b06ec00607acd4270d4b78a16bd1a1092042d52fceade757dcdd296bcb4efe41"
+    }
+  ]
+}

@@ -1,0 +1,118 @@
+{
+  "id": "rain_lock",
+  "title": "雨夜封锁",
+  "subtitle": "暴雨之下，没有人能置身事外。",
+  "summary": "暴雨封住山路，22:35，陈绍安被发现死在会客室。四个在场者各有秘密。今晚，你也是其中一人。",
+  "tags": ["悬疑", "利益博弈", "封闭旅馆"],
+  "duration": "30–60 分钟",
+  "difficulty": "入门",
+  "theme": "rain",
+  "locationLabel": "旅馆",
+  "searchLimit": 3,
+  "victim": "陈绍安",
+  "killer": "boss_wife",
+  "publicEvidence": ["autopsy", "camera_note"],
+  "truth": "孟秋得知丈夫次日将转移旅馆财产，22:05取走备用钥匙。她利用断电提前重启发电机，穿雨衣绕后门回内厅，趁陈绍安独自饮酒时用窄刃厨房刀近身行凶，随后试图把嫌疑引向林策与外来者。林策藏的是拿刀失误，苏曼藏的是旧案调查，周峻藏的是虚报到场时间。",
+  "timeline": [
+    {"id": "body_found", "time": "22:35", "title": "尸体被发现", "detail": "老板陈绍安倒在会客室壁炉边，胸前有一处窄刃刺伤。", "unlocked_by_default": true},
+    {"id": "outage", "time": "22:14–22:32", "title": "旅馆短时断电", "detail": "走廊和后门区域监控同时失效。", "unlocked_by_default": true},
+    {"id": "argument", "time": "21:55", "title": "主厨与死者公开争吵", "detail": "数名住客听见主厨林策与死者因拖欠货款激烈争执。", "unlocked_by_default": true}
+  ],
+  "evidence": [
+    {"id": "autopsy", "title": "尸检摘要", "summary": "致命伤来自窄刃厨房刀，死亡时间约 22:28 到 22:33。", "detail": "伤口切入角度偏低，更可能从近身正面突然出手。"},
+    {"id": "door_log", "title": "前台门禁记录", "summary": "22:11 后门被备用钥匙打开一次。", "detail": "备用钥匙理论上在老板娘手里，但她声称整晚没碰过。"},
+    {"id": "camera_note", "title": "监控故障说明", "summary": "22:14 至 22:32 走廊监控中断。", "detail": "维修工称是暴雨导致线路问题，但日志未见自动告警。"},
+    {"id": "kitchen_knife", "title": "刀具登记簿", "summary": "一把窄刃备菜刀缺失，归还记录空白。", "detail": "这把刀通常锁在后厨储物柜，主厨和老板娘都能接触。"},
+    {"id": "ledger", "title": "账本缺页", "summary": "旅馆资金流有异常缺页，疑似近期被人撕走。", "detail": "缺失页面涉及财产转移和保险收益记录，老板娘明显紧张。"},
+    {"id": "call_record", "title": "住客通话记录", "summary": "女住客在 21:48 向陌生号码拨出 2 分钟电话。", "detail": "通话对象是旧案记者，不是死者，说明她有秘密但不一定是凶手。"},
+    {"id": "raincoat_mud", "title": "带泥雨衣", "summary": "储物间发现一件未登记的雨衣，下摆有新鲜泥点。", "detail": "雨衣尺码更接近老板娘，泥点高度与后门台阶一致。"},
+    {"id": "generator_log", "title": "发电机启停日志", "summary": "发电机在 22:18 被手动重启，比维修工口供早 9 分钟。", "detail": "操作面板有一枚不完整指纹，位置更符合身高较矮的使用者。"},
+    {"id": "key_register", "title": "备用钥匙借用记录", "summary": "22:05 有人以老板娘笔迹登记过后门钥匙。", "detail": "登记时间与老板娘声称一直待在前台的说法冲突。"},
+    {"id": "wine_glass", "title": "破碎酒杯", "summary": "会客室地上的酒杯碎片只有死者指纹。", "detail": "死者独自饮酒，凶手可能利用这一间隙靠近。"},
+    {"id": "inheritance_letter", "title": "财产转移草案", "summary": "死者拟将旅馆股份转给外部投资人，并给妻子极低补偿。", "detail": "草案签署日期是案发次日，足以构成强烈动机。"},
+    {"id": "shoeprint", "title": "湿鞋印方向图", "summary": "鞋印从后门通向内厅，不是从内厅离开。", "detail": "有人借雨夜伪装路线，营造外来者潜入的假象。"}
+  ],
+  "locations": [
+    {"id": "front", "name": "前台", "description": "钥匙挂钩和借用登记簿。", "evidence": ["door_log", "key_register"]},
+    {"id": "kitchen", "name": "后厨", "description": "刀具柜，以及与供应商有关的账目。", "evidence": ["kitchen_knife", "ledger"]},
+    {"id": "storage", "name": "储物间", "description": "潮湿的衣物和无人认领的杂物。", "evidence": ["raincoat_mud"]},
+    {"id": "machine", "name": "机房", "description": "断电之后，有人动过这些设备。", "evidence": ["generator_log"]},
+    {"id": "lounge", "name": "会客室", "description": "壁炉边的现场仍保持原样。", "evidence": ["wine_glass"]},
+    {"id": "office", "name": "账房", "description": "陈绍安留下的财产文件。", "evidence": ["inheritance_letter"]},
+    {"id": "backdoor", "name": "后门", "description": "暴雨留下的脚印尚未干透。", "evidence": ["shoeprint"]},
+    {"id": "room", "name": "客房走廊", "description": "可以核查今晚的住客通话记录。", "evidence": ["call_record"]}
+  ],
+  "npcs": [
+    {
+      "id": "boss_wife", "name": "孟秋", "role": "老板娘",
+      "public_profile": "表面镇定，负责前台和账目，熟悉旅馆运转。",
+      "private_secret": "她是凶手。丈夫次日准备转移旅馆财产，她取走后门钥匙，利用断电和提前重启发电机制造监控盲区，穿雨衣绕后门回内厅，趁丈夫独自饮酒时用窄刃厨房刀近身行凶。",
+      "initial_emotion": "冷静",
+      "facts": ["22:05登记取走备用钥匙，22:11开过后门。", "丈夫准备离婚并转移旅馆股份，只给她极低补偿，草案次日签署。", "22:14断电后离开前台去后区，22:18手动重启发电机。", "22:27穿深色雨衣从后门回内厅，22:28至22:33在会客室行凶。", "熟悉账本、钥匙、后厨刀具和发电机。"],
+      "strategy": "克制、善于辩解，保护自己。初期掩盖离开前台、取钥匙和去机房的事实。被已取得的钥匙记录或发电机日志对质时逐步承认行动，用夫妻谈判解释。面对财产草案可承认怨恨；完整证据链被明确对质时才可能认罪。",
+      "book": {
+        "intro": "你是孟秋。这间旅馆是你多年的心血，丈夫却打算卖掉它，再用极低补偿结束婚姻。今晚你已经做了无法挽回的事。接下来，你必须在这张桌上保护自己。",
+        "relationships": {"chef": "他和丈夫公开争吵，是你可能利用的嫌疑人。", "guest": "她来意不明，你担心她看到了什么。", "handyman": "他熟悉机房，可能识破你伪装的时间。"},
+        "starting": ["inheritance_letter", "key_register"], "search": ["wine_glass"],
+        "goals": [
+          {"title": "避免成为最终被指认的人", "type": "avoid_accusation"},
+          {"title": "避免财产转移草案被公开", "type": "hide_evidence", "evidenceId": "inheritance_letter"}
+        ]
+      }
+    },
+    {
+      "id": "chef", "name": "林策", "role": "主厨",
+      "public_profile": "脾气急，案发前和死者当众争吵，嫌疑最显眼。",
+      "private_secret": "他确实拿过刀，但只是准备夜宵后忘了归位，没有杀人。",
+      "initial_emotion": "烦躁",
+      "facts": ["21:55因拖欠货款与死者当众争吵，死者想让他承担责任。", "22:10后主要在后厨，断电时去看过配电箱，没有进会客室。", "曾拿窄刃备菜刀切冷盘，忘记登记归还，不知道后来谁拿走。", "断电后看见孟秋手持类似钥匙圈的物件快步走向后门。", "知道账本涉及拖欠款项，储物间可查带泥雨衣。"],
+      "strategy": "急躁、直率，怕被当替罪羊。初期掩盖拿刀和离开灶台。刀具登记被出示或得到理解时可以承认失误，提供目击。不知道真正凶手，只能根据所见怀疑。",
+      "book": {
+        "intro": "你是林策。陈绍安把拖欠货款的责任推给你，你当众和他大吵。更糟的是，你确实碰过失踪的刀。你没有杀人，但如果解释不好，你会成为最方便的替罪羊。",
+        "relationships": {"boss_wife": "她也能接触后厨刀具；你看到她走向后门。", "guest": "她不是员工，也许能提供独立目击。", "handyman": "你们都去过设备区域，可以互相核对时间。"},
+        "starting": ["kitchen_knife", "ledger"], "search": ["raincoat_mud"],
+        "goals": [
+          {"title": "指认真正的凶手", "type": "vote_killer"},
+          {"title": "公开账本缺页，让欠款纠纷得到查证", "type": "publish_evidence", "evidenceId": "ledger"},
+          {"title": "避免成为最终被指认的人", "type": "avoid_accusation"}
+        ]
+      }
+    },
+    {
+      "id": "guest", "name": "苏曼", "role": "女住客",
+      "public_profile": "自称偶然入住，举止克制，似乎另有来意。",
+      "private_secret": "她来调查一桩旧案，和死者有过间接接触，但没有行凶。",
+      "initial_emotion": "戒备",
+      "facts": ["21:48向旧案记者拨打两分钟电话，核对死者与一年前事故的关系。", "22:00至22:20在房间通话，后来听到走廊急促脚步声。", "从门缝看到穿深色雨衣的人从后门回内厅，身形不像周峻，没看清脸。", "断电后客人被聚到大堂，怀疑有人利用人群掩护，但不确定是谁。", "通话记录可核验，湿鞋印可查证目击路线。"],
+      "strategy": "谨慎、善于观察，保护旧案调查目的。通话记录被出示、合理劝说或信息交换后逐步信任，透露目击并引导查验鞋印。不知道真正凶手，不能假装看清雨衣人的脸。",
+      "book": {
+        "intro": "你是苏曼。你入住旅馆是为了调查一年前的事故。记者电话和今晚的目击，可能帮助找到真相，也可能暴露你的目的。你需要决定什么时候值得信任别人。",
+        "relationships": {"boss_wife": "她对你的来意很敏感。", "chef": "他脾气急，但愤怒也许有真实原因。", "handyman": "雨衣人的身形不像他，可以谨慎交换信息。"},
+        "starting": ["call_record"], "search": ["shoeprint"],
+        "goals": [
+          {"title": "指认真正的凶手", "type": "vote_killer"},
+          {"title": "公开通话记录，为旧案调查留下依据", "type": "publish_evidence", "evidenceId": "call_record"},
+          {"title": "避免成为最终被指认的人", "type": "avoid_accusation"}
+        ]
+      }
+    },
+    {
+      "id": "handyman", "name": "周峻", "role": "维修工",
+      "public_profile": "负责设备和后门区域，熟悉监控和配电系统。",
+      "private_secret": "他晚报了发电机重启时间，不想承担监控失效责任，但没有杀人。",
+      "initial_emotion": "紧绷",
+      "facts": ["22:27才到机房，发电机已于22:18被他人手动重启。", "为了逃避失职，之前上报错误到场时间。", "线路没有自动故障告警，怀疑有人切断外线，但没看见操作者。", "储物间有未登记的深色雨衣，可以提供位置。", "机房日志能核验真正启停时间，不知道是谁操作。"],
+      "strategy": "紧张、回避责任。初期掩盖迟到并把故障归因暴雨。日志被明确出示或被说服区分失职与杀人时承认虚报，解释异常。不能断言目击操作者。",
+      "book": {
+        "intro": "你是周峻。你迟到机房，还虚报了时间。陈绍安死后，逃避失职的小谎变成致命嫌疑。你知道设备被提前动过，却不知道是谁。你必须把失职与杀人分开。",
+        "relationships": {"boss_wife": "她熟悉后区，也能接触备用钥匙。", "chef": "他断电时看过配电箱，可以核对经历。", "guest": "她在楼上，可能看到后门方向的动静。"},
+        "starting": ["generator_log"], "search": ["door_log"],
+        "goals": [
+          {"title": "指认真正的凶手", "type": "vote_killer"},
+          {"title": "公开发电机日志，证明真实启停时间", "type": "publish_evidence", "evidenceId": "generator_log"},
+          {"title": "避免成为最终被指认的人", "type": "avoid_accusation"}
+        ]
+      }
+    }
+  ]
+}
