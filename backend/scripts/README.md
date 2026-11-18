@@ -2,6 +2,20 @@
 
 每个 `*.json` 是一个独立故事。后端启动时扫描这个目录，前端从 `/api/scripts` 获取剧本列表。新增文件后重启后端即可，无需改前端组件。
 
+以下基础字段说明主要针对剧本杀（缺省 `gameType: murder`）。[night_ward.json](night_ward.json) 使用 `gameType: dungeon`，由独立 `DungeonGame` 和副本工作台处理，没有死者、凶手和投票。新增另一种特殊机制仍须实现对应引擎，不会通过任意 JSON 自动生成玩法。
+
+## 医院生存副本配置
+
+`dungeon` 定义玩家角色、起点、行动上限、熄灯和开门回合、异常上限、巡查回合、NPC 轮换顺序及可选布局。布局包括 `sisterRoom / roomNumber / breaker / bracelet`；线索正文可使用 `{roomNumber}`、`{breaker}`、`{bracelet}`，只有该角色取得或公开后才提供替换后的文字。布局 ID 与真实值只在结局复盘返回。
+
+`actions` 定义玩家的明确行动，含 `id / label / description`、可选 `location`、`requires`、`effects` 和 `message`。前置条件可引用 `evidence / missingEvidence / flags / notFlag / minTurn`；效果限定为已有线索、已定义布尔标志和非负异常增加。特殊 `operation` 仅支持 `breaker`、`verify`、`leave`。普通行动固定耗时一个回合，离开固定零回合。危险操作需 `dangerous:true`，HTTP 提交 `confirm:true` 和当前 `version`。
+
+NPC 的 `npcActions` 使用同样的有限前置条件与效果；线索必须来自自己开局持有的材料。NPC 只能分享、等待、设置广播诱导状态或加固一次性护栏，不能直接增加异常或替玩家完成救助、身份核验与结局。模型输出 `npcActionId`，枚举随当前可用选项生成；生成后及提交前均校验。每个 NPC 必须提供无条件的 `wait`，保证始终有合法选项。
+
+这套副本阶段固定为读本、求生、复盘；求生允许 `private / search / publish / act`。结束由 `DungeonGame` 根据固定状态自动触发，玩家不能通过“推进阶段”绕过求生。`rules` 的正文对玩家可见，解释 `truth` 和关联材料列表只在复盘返回。源故事的 `source.attribution / license / licenseUrl` 保留在选角和副本页。
+
+## 剧本杀配置
+
 每个可玩剧本的选角页都提供“凶手模式”，调用 `/api/start-killer` 后由后端按该本 `killer` 选择玩家角色，不需要把凶手 ID 提前放进公开目录。状态的 `playMode` 为 `killer` 或普通选角的 `roleplay`；只用于玩家界面，不把玩家的凶手身份告诉 AI。两种入口共用同一剧本进度与流程，凶手模式不自动公开真相、改变案情或授予其他角色的私密信息。已有进度需重开后重新选择模式；`awaiting_materials` 剧本的凶手入口保持禁用。
 
 进入 `kind: accusation` 阶段前，状态返回 `accusationReadiness`（其余阶段为 `null`），包含已搜地点数、未搜地点数、当前阶段真正可搜索次数、公共线索数和提醒。新增公开线索不满两条时提示判断材料可能不足；这是提醒阈值，不是证据充分性的判断，也不会暴露未取得的线索。即使无提醒，仍需确认结束调查：`/api/advance` 提交 `confirmAccusation: true`，或调用 `Game.advance(confirm_accusation=True)`。不强制搜完、公开线索或达成个人目标；当前待发言角色仍必须先完成。普通阶段推进不需要确认，未设指认阶段的剧本不受影响。

@@ -1,0 +1,9 @@
+User-agent: *
+Disallow: /*/p/*/p/
+Disallow: /*/p/*_p/
+Disallow: /*_p/*/p/
+Disallow: /*_p/*_p/
+
+Sitemap: https://scpwiki.com/sitemap.xml
+User-agent: voltron
+Disallow: /

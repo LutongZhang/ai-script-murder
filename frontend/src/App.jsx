@@ -4,6 +4,7 @@ import { useNarration } from "./hooks/useNarration.js";
 import { ScriptLibrary } from "./components/ScriptLibrary.jsx";
 import { RoleLobby } from "./components/RoleLobby.jsx";
 import { GameWorkspace } from "./components/GameWorkspace.jsx";
+import { DungeonWorkspace } from "./components/DungeonWorkspace.jsx";
 import { VoiceSettings } from "./components/VoiceSettings.jsx";
 
 export default function App() {
@@ -15,7 +16,7 @@ export default function App() {
   const theme = screen === "library" ? "library" : state?.case.theme || "rain";
 
   useEffect(() => {
-    document.title = screen === "library" ? "局中人 | AI 陪玩剧本杀" : `${state?.case.title || "局中人"} | AI 陪玩剧本杀`;
+    document.title = screen === "library" ? "局中人 | AI 叙事副本" : `${state?.case.title || "局中人"} | AI 叙事副本`;
   }, [screen, state?.case.title]);
 
   useEffect(() => {
@@ -36,7 +37,7 @@ export default function App() {
     {theme === "rain" && <div className="rain" aria-hidden="true" />}
     <div className="ambient" aria-hidden="true" />
     <header className="topbar">
-      <button className="brand" disabled={Boolean(busy)} onClick={openLibrary}>局中人<span>AI 陪玩剧本杀</span></button>
+      <button className="brand" disabled={Boolean(busy)} onClick={openLibrary}>局中人<span>AI 叙事副本</span></button>
       <div className="header-actions">
         <span className="live-dot" /><span>一人入局 · AI 同桌</span>
         {screen !== "library" && <button disabled={Boolean(busy)} onClick={openLibrary}>剧本库</button>}
@@ -57,7 +58,9 @@ export default function App() {
     {state && screen === "lobby" && <RoleLobby state={state} busy={busy}
       onBack={openLibrary} onStart={(roleId) => game.action("start", { roleId })}
       onStartKiller={() => game.action("start-killer")} />}
-    {state?.player && screen === "game" && <GameWorkspace key={`${state.case.id}:${state.player.id}`} game={game} narration={narration} />}
+    {state?.player && screen === "game" && (state.case.gameType === "dungeon"
+      ? <DungeonWorkspace key={`${state.case.id}:${state.player.id}`} game={game} narration={narration} />
+      : <GameWorkspace key={`${state.case.id}:${state.player.id}`} game={game} narration={narration} />)}
 
     {voiceSettings && state && <VoiceSettings state={state} narration={narration} onClose={() => setVoiceSettings(false)} />}
     {confirmReset && <div className="dialog-backdrop" onClick={() => setConfirmReset(false)}>

@@ -59,14 +59,16 @@ export function useGame(onReply) {
 
   async function completeTurns(data) {
     let current = data;
-    while (current.pendingSpeakers.length) {
-      const person = current.roles.find((role) => role.id === current.pendingSpeakers[0]);
+    while (current.pendingSpeakers.length || current.sceneCue) {
+      const cue = current.sceneCue;
+      const person = current.roles.find((role) => role.id === (cue?.npcId || current.pendingSpeakers[0]));
       setBusy(current.phaseKind === "accusation" ? `${person.name}正在秘密指认…` : `${person.name}正在斟酌发言…`);
-      const response = await request("ai-turn", { scriptId: current.case.id });
+      const response = await request(cue ? "scene-turn" : "ai-turn",
+        { scriptId: current.case.id, ...(cue ? { cueId: cue.id } : {}) });
       current = response.state;
       saveState(current);
-      if (response.reply) onReply(`${current.case.id}:board-${current.board.at(-1).id}`, response.reply,
-        { ...current.roles.find((role) => role.id === current.board.at(-1).speakerId), scriptId: current.case.id });
+      if (response.reply) onReply(response.replyKey || `${current.case.id}:board-${current.board.at(-1).id}`, response.reply,
+        { ...current.roles.find((role) => role.id === (response.speakerId || current.board.at(-1).speakerId)), scriptId: current.case.id });
     }
   }
 
@@ -75,7 +77,7 @@ export function useGame(onReply) {
     const scriptId = state.case.id;
     const errorKey = `${scriptId}:${body.npcId}`;
     busyRef.current = true;
-    setBusy(path === "question" ? "对方正在思考，私聊只在你们之间进行…" : "正在处理…");
+    setBusy(path === "question" ? "对方正在听你说话…" : path === "scene-action" ? "你走近了现场…" : "正在处理…");
     setError("");
     if (path === "question") setPrivateErrors((old) => ({ ...old, [errorKey]: "" }));
     try {

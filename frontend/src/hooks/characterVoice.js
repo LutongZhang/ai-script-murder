@@ -1,5 +1,12 @@
 // Delivery styles use public character traits, never private story material.
 const styles = {
+  night_ward: {
+    temp_worker: ["年轻、克制", "male", 0.98, 1],
+    head_nurse: ["谨慎、沉稳", "female", 0.92, 0.98],
+    old_patient: ["年长、轻缓", "male", 0.86, 0.9],
+    coworker: ["紧绷、直接", "male", 1.02, 0.98],
+    caller: ["轻缓、急迫", "female", 0.92, 1.04],
+  },
   last_letter: {
     conductor: ["沉稳、从容", "male", 0.88, 0.92],
     secretary: ["谨慎、轻缓", "female", 0.96, 1.02],

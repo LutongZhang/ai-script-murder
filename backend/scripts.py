@@ -17,6 +17,7 @@ PUBLIC_FIELDS = ("id", "title", "subtitle", "summary", "tags", "duration",
 
 def script_summary(script: dict[str, Any]) -> dict[str, Any]:
     return {**{key: script[key] for key in PUBLIC_FIELDS}, "playerCount": len(script["npcs"]),
+            "gameType": script.get("gameType", "murder"),
             "availability": script["availability"], "source": script.get("source"),
             "mode": public_mode(script["mode"]), "coverText": script.get("coverText", script["title"][:2])}
 
@@ -26,6 +27,15 @@ def validate_script(script: dict[str, Any]) -> None:
     if not isinstance(script, dict):
         raise ValueError("Script must be a JSON object")
     normalize_rules(script)
+    if script.get("gameType") == "dungeon":
+        if __package__:
+            from .dungeon_rules import validate_dungeon
+        else:
+            from dungeon_rules import validate_dungeon
+        validate_dungeon(script)
+        return
+    if script.get("gameType", "murder") != "murder":
+        raise ValueError("Unknown gameType")
     if "opening" in script and (not isinstance(script["opening"], str) or not script["opening"].strip()):
         raise ValueError("Invalid public opening")
     if script["schemaVersion"] != 2:
@@ -81,6 +91,8 @@ def validate_script(script: dict[str, Any]) -> None:
     if len(ids["npcs"]) < 2 or script["killer"] not in ids["npcs"]:
         raise ValueError("Invalid roles or killer")
     validate_mode(script["mode"], ids["evidence"], ids["npcs"])
+    if any("act" in phase["actions"] for phase in script["mode"]["phases"]):
+        raise ValueError("Dungeon actions require gameType=dungeon")
     limit = script["searchLimit"]
     if type(limit) is not int or not 1 <= limit <= len(script["locations"]):
         raise ValueError("Invalid searchLimit")

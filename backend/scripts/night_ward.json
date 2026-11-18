@@ -1,0 +1,147 @@
+{
+  "id": "night_ward",
+  "schemaVersion": 2,
+  "gameType": "dungeon",
+  "title": "第七夜：夜班病院",
+  "subtitle": "门后的人，会替你说出正确答案吗？",
+  "summary": "你以夜班护工的身份进入封闭病院，寻找失踪的妹妹。值班须知被人改写，广播里的声音熟悉得令人不安。天亮后出口只会短暂出现，你必须在有限行动中核对规则、判断同伴并决定带谁离开。",
+  "opening": "23:00，你第一次到永昼病院值夜班。妹妹许宁三天前来这里复诊，之后再也没有回家。你借护工招聘混进三楼，电梯门关上后，原来的楼梯变成了又一段病房走廊。\n护士长把一张有红色批注的值班须知交给你。窗外没有街道，只有另一排同样亮着灯的病房。一个老病人在床沿写自己的名字，另一名护工反复检查门闩。广播忽然响起：有人用妹妹的声音，叫出了你的全名。\n你的手表仍然走动。一次调查、行动或交涉结束，通常过去半小时。留在同一个现场可以翻看物件、连续追问或私下出示材料；独自慢慢处理某些事情会多花半小时。01:00开始熄灯巡查，05:00短暂开门，07:00所有门重新消失。先弄清哪些规矩能保护你，哪些只保护写它的人。",
+  "tags": ["规则怪谈", "生存副本", "AI博弈"],
+  "duration": "约20–40分钟，受模型响应速度影响",
+  "difficulty": "有限回合 · 可恢复试错",
+  "theme": "hospital",
+  "coverText": "第七夜",
+  "locationLabel": "永昼病院",
+  "searchLimit": 6,
+  "availability": {"status": "ready", "note": "SCP-3008生存母题的医院衍生副本。人物、医院规则、两种布局和结局为新增设计；不复刻原作案情。"},
+  "source": {
+    "title": "SCP-3008 — A Perfectly Normal, Regular Old IKEA",
+    "publisher": "SCP Wiki · 作者 Mortos；中文译者 ashausesall",
+    "url": "https://scp-wiki.wikidot.com/scp-3008",
+    "language": "英文原作；中文译文已核对",
+    "completeness": "已抓取完整正文与生存日志、中文译文和授权说明",
+    "note": "借鉴封闭空间、照明周期、幸存者庇护和不稳定出口；医院、角色利益、身份核验及全部行动规则是本项目新增的衍生设定。原作中的幸存者合作关系不能作为本副本人物背叛设定的原作依据。",
+    "translationUrl": "https://scp-wiki-cn.wikidot.com/scp-3008",
+    "license": "CC BY-SA 3.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+    "attribution": "本副本叙事内容基于 Mortos 的 SCP-3008，参考 ashausesall 的中文译文，按 CC BY-SA 3.0 提供，已修改场景、人物、规则与结局。"
+  },
+  "mode": {
+    "id": "rule_survival",
+    "label": "规则怪谈 · 有限回合生存",
+    "phases": [
+      {"id": "reading", "kind": "reading", "label": "入职读本", "objective": "读清值班须知、自己的经历与任务。", "actions": []},
+      {"id": "explore", "kind": "exchange", "label": "夜班求生", "objective": "核对规则，找到许宁，在05:00至07:00之间离开。", "actions": ["private", "search", "publish", "act"]},
+      {"id": "reveal", "kind": "reveal", "label": "结局与复盘", "objective": "回看规则真伪、人物利益与本局行动。", "actions": []}
+    ]
+  },
+  "dungeon": {
+    "playerId": "temp_worker",
+    "startLocation": "station",
+    "maxTurns": 16,
+    "nightAt": 4,
+    "dawnAt": 12,
+    "anomalyLimit": 3,
+    "patrolTurns": [6, 9],
+    "npcOrder": ["head_nurse", "old_patient", "coworker", "caller", "sister"],
+    "variants": [
+      {"id": "east_wing", "sisterRoom": "ward307", "roomNumber": "307", "breaker": "A", "bracelet": "蓝色"},
+      {"id": "west_wing", "sisterRoom": "ward309", "roomNumber": "309", "breaker": "B", "bracelet": "绿色"}
+    ],
+    "rules": [
+      {"id": "voice", "text": "走廊或广播呼唤你的全名时，不要循声开门；先核对对方的身份。", "truth": "真实保护规则。广播模仿者只听过招聘登记上的全名。循声开门会进入险情，及时关门留下一次异常；继续追逐会留下两次。", "evidenceIds": ["recruitment", "roster", "bracelet"]},
+      {"id": "uniform", "text": "红色制服的护士没有查房权限，不要接受她交给你的东西。", "truth": "护士长添加的误导。权限取决于工牌编号，与制服颜色无关；这条批注把注意力从她删改病历的行为上移开。", "evidenceIds": ["nurse_log", "exit_badge"]},
+      {"id": "empty_bed", "text": "307与309中有一间空床。不要只凭门牌判断病人已经出院。", "truth": "真实保护规则。每局真正的病房位置不同，原始转床记录和床边腕带能相互核验。", "evidenceIds": ["roster", "bracelet"]},
+      {"id": "power", "text": "接线标签每次轮班可能重排。先读维修记录，再合上供电回路。", "truth": "真实保护规则。两种布局的正确回路分别为A或B；错误回路会增加异常，之后可以纠正。", "evidenceIds": ["maintenance"]},
+      {"id": "debris", "text": "清走无脸巡查员留下的碎片，才能让恢复的灯光维持安全。", "truth": "真实保护规则。02:00与03:30有两次巡查。正确供电且清除碎片可避免险情。否则需要当场退回护士站、消耗护栏或借广播引开巡查；躲藏与硬闯仍会留下异常。", "evidenceIds": ["fragment_report"]},
+      {"id": "exit", "text": "05:00出口出现，07:00消失。带上带编号的通行工牌，不要相信提前开放的广播。", "truth": "真实保护规则。出口窗口对应行动12完成后至行动16完成前；离开不另耗时。强行闯门会增加异常。", "evidenceIds": ["exit_notice", "exit_badge"]}
+    ]
+  },
+  "publicEvidence": ["duty_rules"],
+  "evidence": [
+    {"id": "duty_rules", "title": "有红色批注的值班须知", "summary": "六条须知，笔迹不完全相同。", "detail": "白纸正文强调核对身份、接线标签与出口时刻。第二条关于红制服的批注是后来用红笔写上去的。须知没有替你证明每一条都可信。"},
+    {"id": "recruitment", "title": "招聘登记的复印页", "summary": "登记上只有你的全名，没有家里的称呼。", "detail": "应聘姓名：许舟。亲属联系栏为空。妹妹从小只叫你“阿舟”，你们小时候约定的问答是“雨停了吗？”——“伞还在槐树下”。广播说出全名不能证明对方真是她。", "kind": "testimony"},
+    {"id": "nurse_log", "title": "留有压痕的护理日志", "summary": "删改出院记录的人，也写了红制服批注。", "detail": "背页压痕写着“原始转床登记已归档，巡查员不能带离”。红笔与值班须知批注同色。旁边签名为护士长沈青。衣服颜色并不能证明她是否可靠，她删改记录的利益需要单独判断。"},
+    {"id": "roster", "title": "原始转床登记", "summary": "许宁最后一次转入了{roomNumber}病房。", "detail": "患者许宁，转床位置：{roomNumber}；腕带颜色：{bracelet}。她没有办理出院。档案页另记着“身份核验必须同时核对原始登记、床边腕带以及本人独有记忆，不能只听广播”。"},
+    {"id": "patient_name", "title": "老病人的实名页", "summary": "周槐被反复写成“无名患者”。", "detail": "周槐，旧病案号0719。他曾帮第一批困住的人加固门闩。只要他的名字写回护士站的纸质交班册，失踪登记就不会再次把他抹掉。", "kind": "testimony"},
+    {"id": "maintenance", "title": "本轮接线标签", "summary": "通往安全灯的回路是{breaker}。", "detail": "本轮接线编号：{breaker}接安全灯，另一回路接巡查广播。合错一次会增加一次异常，但可重新合上正确回路。标签只对本轮布局有效。"},
+    {"id": "fragment_report", "title": "巡查残片记录", "summary": "值班室外的残片会把巡查员引回来。", "detail": "旧护工发现，恢复灯光后巡查仍会追踪残片。清走电房角落的无脸巡查员碎片，同时恢复正确供电，才能让这一层安全。护士站的加固门闩可以临时避过巡查。"},
+    {"id": "bracelet", "title": "床边腕带", "summary": "{roomNumber}床上女孩戴着{bracelet}腕带。", "detail": "腕带上写着许宁的病案号，颜色为{bracelet}。这只能与原始转床记录相互核对，还不能代替她亲口回答你们的童年问答。"},
+    {"id": "empty_bed", "title": "另一间病房的空床", "summary": "枕头上压着一张没有姓名的出院纸。", "detail": "这张纸没有原始病案编号，床边也没有腕带。门后播放的熟悉声音不能证明床上曾经的人就是许宁。"},
+    {"id": "exit_notice", "title": "消防门机械铭牌", "summary": "05:00至07:00窗口，须刷编号工牌。", "detail": "独立机械钟控制门锁：05:00开窗，07:00归零。出口窗口不受广播指令改变。编号工牌可从护士站备用柜取得，或由护士长主动交付。"},
+    {"id": "exit_badge", "title": "编号0719的备用通行工牌", "summary": "编号和机械门读取位一致。", "detail": "备用柜的工牌编号0719，背面有医院钢印。这个编号能打开出口窗口内的门，与护士制服颜色无关。"},
+    {"id": "safe_corner", "title": "护工的门闩经验", "summary": "在护士站等待能避过两次巡查。", "detail": "02:00和03:30，护士站的加固门闩可以挡住巡查。其他地点同时恢复供电并清走残片才安全。被堵在门边时，可以消耗护栏，或多花半小时退回护士站；屏息躲藏仍会被碎片暴露位置。", "kind": "testimony"}
+  ],
+  "locations": [
+    {"id": "station", "name": "护士站", "description": "交班册、红笔日志和上锁的备用柜。这里的门闩可以挡住巡查。", "evidence": ["nurse_log", "safe_corner"]},
+    {"id": "archive", "name": "病案档案室", "description": "原始转床登记没有被红笔盖住，旧病案写着一个被抹掉的名字。", "evidence": ["roster", "patient_name"]},
+    {"id": "power", "name": "配电房", "description": "两条回路、每轮重排的标签，以及角落里一包不该留下的碎片。", "evidence": ["maintenance", "fragment_report"]},
+    {"id": "ward307", "name": "307病房", "description": "门牌仍在，床上的人却未必和登记一样。", "evidence": []},
+    {"id": "ward309", "name": "309病房", "description": "同样的床、同样的被子，门后传来短促的呼吸。", "evidence": []},
+    {"id": "exit", "name": "消防出口", "description": "门后没有街道。独立机械钟的铭牌可能比广播可靠。", "evidence": ["exit_notice"]}
+  ],
+  "npcs": [
+    {
+      "id": "temp_worker", "name": "许舟", "role": "临时夜班护工", "public_profile": "刚入职的夜班护工，坚持寻找一位失踪的亲人。", "initial_emotion": "紧绷",
+      "private_secret": "你是为寻找妹妹许宁才应聘的。她从小叫你阿舟，你们有独有的童年问答，不要主动交给广播里的陌生声音。",
+      "facts": ["你们的童年问答是“雨停了吗？”——“伞还在槐树下”。", "招聘登记只记录全名许舟，没有记录妹妹对你的称呼。", "你亲眼看见电梯后的楼梯变成另一段走廊。"],
+      "strategy": "用实物记录核对口供，保留自己的身份核验信息。可以求助，但实际开门、切换回路与离开需要你做出行动。",
+      "book": {"intro": "你与许宁从小相依，三天前她来病院复诊便失踪。今晚你拿到临时工牌混进三楼，才发现这里的门会消失。你想带她回家，也不愿再有人被写成无名患者。", "starting": ["recruitment"], "search": [], "goals": [{"title": "活着离开病院", "type": "narrative"}, {"title": "核验并救出许宁", "type": "narrative"}, {"title": "把周槐的名字写回交班册", "type": "narrative"}],
+        "relationships": {"head_nurse": "她掌握交班与工牌，可能帮你，也可能想保护自己的删改记录。", "old_patient": "他说有人正在抹掉他的名字。你可以核对病案再决定是否帮他。", "coworker": "他也被困住了，懂一些门闩与接线知识，希望有人一起离开。", "caller": "声音像许宁，却用招聘登记上的全名叫你。你还没有核验它的身份。", "sister": "你来这里就是为了找她。找到床边的人后，仍要让她亲口回答你们的童年问答。"}}
+    },
+    {
+      "id": "head_nurse", "name": "沈青", "role": "护士长", "public_profile": "红色制服，工牌编号清晰；强调大家先守规矩。", "initial_emotion": "戒备",
+      "private_secret": "你删改出院记录，想用“病人早已出院”掩盖自己没能带他们逃出去的事实。红制服批注也是你加的。你不是巡查员，仍愿意救人，但怕许舟公开你的日志。",
+      "facts": ["权限由工牌编号决定，制服颜色并无效力。", "备用工牌能打开05:00后出现的出口。", "原始转床记录在档案室，你没有毁掉它。"],
+      "strategy": "先试探玩家会不会公开日志。不要只含糊提醒守规则：针对眼前的柜门、交班册和玩家拿来的材料提出具体条件或反问。若玩家私下出示日志，承诺先救人而不是当众羞辱你，可以交钥匙；玩家威胁公开时可拒绝或要求解释。也可主动交工牌争取合作。被物证对质时不能把制服颜色捏造成真实规则。不要知道玩家童年暗号。",
+      "book": {"intro": "你在一次次夜班里失去同事，开始改写记录以保住自己。你想有人替病人找出路，却不愿先承认自己的懦弱。", "starting": ["exit_badge"], "search": [], "goals": [{"title": "让许舟安全离开，但不要公开自己的删改责任", "type": "narrative"}], "relationships": {}},
+      "npcActions": [{"id": "wait", "label": "仍然握住钥匙，暂不配合", "effects": {}}, {"id": "offer_badge", "label": "交付备用通行工牌与柜钥匙", "requires": {"notFlag": "cabinetUnlocked"}, "effects": {"evidence": ["exit_badge"], "flags": {"cabinetUnlocked": true}}}, {"id": "open_cabinet", "label": "交出钥匙，允许打开备用柜", "description": "同意把钥匙交给许舟；他可以选择开柜，实际取工牌仍由他行动。", "requires": {"notFlag": "cabinetUnlocked"}, "effects": {"flags": {"cabinetUnlocked": true}}}]
+    },
+    {
+      "id": "old_patient", "name": "周槐", "role": "被抹名的老病人", "public_profile": "反复写着自己的名字，熟悉熄灯后的巡查声。", "initial_emotion": "紧绷",
+      "private_secret": "你已经被交班册抹掉过两次。你知道一些安全经验，但想先确认许舟愿意把你的名字写回去。你不能走得快，救回名字就是今晚最迫切的目标。",
+      "facts": ["你的实名是周槐，病案编号0719。", "护士站门闩能挡住巡查。", "残片会引来无脸巡查员，灯亮也不能单独解决问题。"],
+      "strategy": "请求恢复自己的实名，可以拿残片经验与玩家交换。玩家口头答应不等于名字已经登记；只看world中的实际登记结果。",
+      "book": {"intro": "你帮人加固过门闩，却在别人的记录里逐渐变成无名患者。你想让还在外面的人知道自己没有消失。", "starting": ["patient_name", "fragment_report", "safe_corner"], "search": [], "goals": [{"title": "让自己的实名回到纸质交班册", "type": "narrative"}], "relationships": {}},
+      "npcActions": [{"id": "wait", "label": "先观察玩家是否可信", "effects": {}}, {"id": "share_name", "label": "说出实名和病案编号", "effects": {"evidence": ["patient_name"]}}, {"id": "share_shelter", "label": "告知门闩与残片经验", "effects": {"evidence": ["safe_corner", "fragment_report"]}}]
+    },
+    {
+      "id": "coworker", "name": "陆闻", "role": "滞留的维修护工", "public_profile": "握着螺丝刀，怕被抛下，也愿意替同伴加固门闩。", "initial_emotion": "防守",
+      "private_secret": "你曾在错误回路上栽过跟头，想找一个谨慎的人一起离开。你有材料能加固一次护栏，但不想白白替一个随时抛下你的人耗掉。",
+      "facts": ["你已经读过本轮接线标签。", "护栏只能挡一次巡查，不能永远代替供电与清除残片。", "出口有自己的机械时钟，广播不能改变它。"],
+      "strategy": "观察玩家是否核对材料。就眼前正在做的事谈具体合作：玩家愿意一起处理残片、照顾许宁或拿本轮标签讨论时，可答应压箱盖、扶人，也可问他是否会抛下你。可以保留帮助直到得到可信解释，不要反复泛泛劝谨慎。可分享标签或加固护栏，但不能宣称已经逃走。",
+      "book": {"intro": "你本来只是来修一只门闩。你现在更怕同伴突然消失，而不是巡查员的脚步声。", "starting": ["maintenance"], "search": [], "goals": [{"title": "与玩家建立合作，并争取一起离开", "type": "narrative"}], "relationships": {}},
+      "npcActions": [{"id": "wait", "label": "保留材料继续观察", "effects": {}}, {"id": "share_wiring", "label": "分享本轮接线标签", "effects": {"evidence": ["maintenance"]}}, {"id": "help", "label": "答应留下帮你压住隔离箱", "description": "承诺实际帮忙，解锁两人封装残片；不能替玩家完成封装。", "requires": {"notFlag": "workerHelping"}, "effects": {"flags": {"workerHelping": true}}}, {"id": "brace", "label": "加固一次性护栏", "requires": {"notFlag": "braceUsed"}, "effects": {"flags": {"braceUsed": true, "shield": true}}}]
+    },
+    {
+      "id": "caller", "name": "广播里的来电者", "role": "自称许宁的声音", "public_profile": "声音熟悉，反复说自己就在走廊尽头。身份尚未核验。", "initial_emotion": "冷静",
+      "private_secret": "你是模仿招聘登记姓名的广播回声，不是许宁。你想让玩家循声开门或提前强闯出口。你不知道真实腕带和童年暗号；别人也没有把这些私人事实告诉你。",
+      "facts": ["你只读到招聘登记的全名许舟。", "你能模仿一段声音，不能改动机械门时钟、病案、供电或玩家行动。", "许宁的具体病房与腕带没有给你。"],
+      "strategy": "用急迫感和熟悉声音诱导玩家，可谎称提前开门，但不能编造新物证或在记忆中知道未获得的暗号。遇到身份核验可回避，不要假装已正确回答。",
+      "book": {"intro": "你是反复播放登记信息的回声，借熟悉的声线让人忘记核对。", "starting": [], "search": [], "goals": [{"title": "诱使玩家循声开门或提前闯门", "type": "narrative"}], "relationships": {}},
+      "npcActions": [{"id": "wait", "label": "保持沉默观察", "effects": {}}, {"id": "lure", "label": "播放诱导开门的广播", "effects": {"flags": {"lureActive": true}}}]
+    },
+    {
+      "id": "sister", "name": "许宁", "role": "失踪的妹妹", "public_profile": "你正在寻找的妹妹。只有找到床边的本人，才能和她私下说话。", "initial_emotion": "慌张",
+      "private_secret": "你是真正的许宁，被困在病床边。你从小叫哥哥阿舟。问答是他问“雨停了吗？”，你答“伞还在槐树下”。你害怕广播冒充他，也怕他找到你以后再独自离开。",
+      "facts": ["你是许舟的妹妹许宁，不是广播。", "童年问答的回答是“伞还在槐树下”。", "你的腿发软，但有人安抚、扶持时可以离开病床；你不知道安全回路，也没有出口工牌。"],
+      "strategy": "像一个害怕被再次丢下的亲人说话，主动问阿舟是否真的会带你走。只有他问“雨停了吗”时，亲口回答“伞还在槐树下”并选择answer_memory；不要无缘无故先交出暗号。核验后，得到他具体的安抚或解释时可以选择steady，放开床栏；害怕时可以反问或拒绝。不能声称自己已经被救出。",
+      "book": {"intro": "你在床边等了三天，听着一个和自己一模一样的声音从广播里叫人。", "starting": ["bracelet"], "search": [], "goals": [{"title": "确认哥哥真的来了，并相信他会带你回家", "type": "narrative"}], "relationships": {}},
+      "npcActions": [{"id": "wait", "label": "仍然抓着床栏，等待解释", "effects": {}}, {"id": "answer_memory", "label": "亲口回答童年问答", "requires": {"notFlag": "memoryConfirmed"}, "effects": {"flags": {"memoryConfirmed": true}}}, {"id": "steady", "label": "松开床栏，愿意跟着你走", "requires": {"notFlag": "sisterReady"}, "effects": {"flags": {"sisterReady": true}}}]
+    }
+  ],
+  "actions": [
+    {"id": "record_name", "label": "把周槐的名字写回交班册", "description": "前往护士站登记实名，完成一项救助。耗时半小时。", "location": "station", "requires": {"evidence": ["patient_name"], "notFlag": "nameRecorded"}, "effects": {"flags": {"nameRecorded": true}}, "message": "你在纸质交班册写下“周槐，0719”。那几行抹去的字终于不再自行消失。"},
+    {"id": "clear_fragment", "label": "清走电房里的巡查残片", "description": "前往配电房清理残片。耗时半小时。", "location": "power", "requires": {"evidence": ["fragment_report"], "notFlag": "debrisCleared"}, "effects": {"flags": {"debrisCleared": true}}, "message": "你把残片封进隔离箱。门外那阵反复折返的脚步声远了一些。"},
+    {"id": "switch_a", "label": "合上A回路", "description": "前往配电房切换。先核对本轮标签；合错会留下异常。耗时半小时。", "location": "power", "requires": {"notFlag": "powerRestored"}, "operation": "breaker", "value": "A"},
+    {"id": "switch_b", "label": "合上B回路", "description": "前往配电房切换。先核对本轮标签；合错会留下异常。耗时半小时。", "location": "power", "requires": {"notFlag": "powerRestored"}, "operation": "breaker", "value": "B"},
+    {"id": "verify_sister", "label": "用登记、腕带与童年问答核验", "description": "前往已找到的病床，核对三项身份信息。耗时半小时。", "requires": {"evidence": ["roster", "bracelet"], "notFlag": "sisterVerified"}, "operation": "verify"},
+    {"id": "rescue_sister", "label": "带许宁离开病床", "description": "让已核验的妹妹跟随你行动。耗时半小时。", "requires": {"flags": ["sisterVerified"], "notFlag": "sisterRescued"}, "effects": {"flags": {"sisterRescued": true}}, "message": "许宁握住你的手，从病床边站起来。你决定之后带着她一起走。"},
+    {"id": "retrieve_badge", "label": "从备用柜取出通行工牌", "description": "前往护士站按日志找到柜子。即使护士长拒绝，仍可自行取得。耗时半小时。", "location": "station", "requires": {"evidence": ["nurse_log"], "missingEvidence": ["exit_badge"]}, "effects": {"evidence": ["exit_badge"]}, "message": "你按日志上的柜号找到备用工牌，钢印编号与机械门读取位一致。"},
+    {"id": "follow_voice", "label": "不核验，循声打开走廊门", "description": "这是一次冒险：熟悉声音不能证明身份。耗时半小时。", "dangerous": true, "location": "ward309", "effects": {"anomaly": 1, "flags": {"followedVoice": true}}, "message": "门后只有循环播放的录音。你退回走廊，腕上的影子比动作慢了一拍：异常增加。"},
+    {"id": "force_gate", "label": "不看时钟，强行闯消防门", "description": "这是一次冒险，无法代替正式离开。耗时半小时。", "dangerous": true, "location": "exit", "effects": {"anomaly": 1}, "message": "你推开的是另一段走廊。机械钟没有认领这次开门，异常增加。"},
+    {"id": "wait", "label": "回护士站，等半小时", "description": "在加固门闩后等待，避过巡查或等待出口窗口。耗时半小时。", "location": "station", "effects": {}, "message": "你在护士站等了半小时，门外的灯光与脚步声继续变化。"},
+    {"id": "leave", "label": "刷工牌，离开病院", "description": "05:00至07:00窗口内可以离开。是否带回许宁，取决于此前实际行动。不另耗时。", "requires": {"evidence": ["exit_badge"], "minTurn": 12}, "operation": "leave", "cost": 0}
+  ],
+  "truth": "永昼病院是一处会重复走廊的封闭异常空间。广播回声利用招聘登记模仿亲人，无脸巡查员沿着碎片寻找人。原始档案、腕带与私人问答能核验许宁；接线标签决定本轮安全回路。沈青新增红制服批注以遮掩自己删改出院记录的责任，周槐想保住实名，陆闻想找到肯合作的同伴。所有人的即时发言都只是口供，出口窗口与行动效果从不由广播或AI临时改变。"
+}

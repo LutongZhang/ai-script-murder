@@ -1,0 +1,44 @@
+.death-sequence{position:fixed;inset:0;z-index:200;overflow:hidden;background:#030504;color:#e6ebe2;isolation:isolate;outline:none;animation:death-enter .3s ease both;font-family:"PingFang SC",sans-serif}
+.death-stage{position:absolute;inset:0;overflow:hidden}
+.death-background{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;filter:brightness(.45) saturate(.6)}
+.death-background.is-ready{opacity:1}
+.death-shadow{position:absolute;inset:0;background:linear-gradient(180deg,#01030290,#02060455 40%,#020302dd);box-shadow:inset 0 0 25vw #000c}
+.death-monster{position:absolute;top:50%;left:50%;width:min(80vw,650px);height:96vh;object-fit:contain;object-position:50% 0;opacity:0;transform:translate(-50%,-50%) scale(.24);transform-origin:50% 26%;mask-image:linear-gradient(90deg,transparent,black 22%,black 78%,transparent);-webkit-mask-image:linear-gradient(90deg,transparent,black 22%,black 78%,transparent)}
+.death-monster.is-ready{animation:death-lunge 2.6s cubic-bezier(.55,.05,.8,.4) both}
+.death-impact .death-stage{animation:death-camera .38s ease-out both}
+.death-impact .death-shadow{box-shadow:inset 0 0 22vw #581e1c99}
+.death-black{position:absolute;inset:0;background:#030504;opacity:0;transition:opacity .22s}
+.death-blackout .death-black,.death-title .death-black{opacity:1}
+.death-controls{position:absolute;top:max(22px,env(safe-area-inset-top));right:26px;display:flex;gap:10px;z-index:2}
+.death-controls button{font-size:11px;padding:9px 13px;background:#07100dce;color:#c9d4c7;border-color:#d9e4d133;backdrop-filter:blur(5px)}
+.death-controls button:focus-visible{outline:2px solid #c0d6c3}
+.death-caption{position:absolute;left:24px;right:24px;bottom:12vh;text-align:center;font-family:"Songti SC",serif;font-size:23px;letter-spacing:3px;color:#d8e1d0;text-shadow:0 2px 12px #000;opacity:1;transition:opacity .2s}
+.death-blackout .death-caption,.death-title .death-caption{opacity:0}
+.death-last-line{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;opacity:0;transform:translateY(8px);transition:opacity .6s ease,transform .6s ease;pointer-events:none;padding:30px}
+.death-last-line span{font-size:13px;color:#9bac9c;letter-spacing:3px;text-align:center}
+.death-last-line h2{font-family:"Songti SC",serif;font-size:42px;font-weight:400;letter-spacing:9px;color:#d6dfce;margin:0}
+.death-title .death-last-line{opacity:1;transform:translateY(0)}
+.death-doors{position:absolute;inset:0;display:flex}
+.death-doors span{width:50%;height:100%;background:linear-gradient(90deg,#080f0b,#17221a 85%,#020503);border-right:1px solid #b5c4ac25;box-shadow:inset 0 0 90px #0008}
+.death-doors span:first-child{animation:death-door-left 2.4s cubic-bezier(.15,.7,.4,1) both}
+.death-doors span:last-child{background:linear-gradient(90deg,#020503,#17221a 15%,#080f0b);border-right:0;border-left:1px solid #b5c4ac25;animation:death-door-right 2.4s cubic-bezier(.15,.7,.4,1) both}
+.scene-ending-replay{font-size:12px;margin:8px 0 16px}
+@keyframes death-enter{from{opacity:0}to{opacity:1}}
+@keyframes death-lunge{
+  0%{opacity:0;transform:translate(-50%,-50%) scale(.24)}
+  35%{opacity:.6;transform:translate(-50%,-50%) scale(.42)}
+  63%{opacity:1;transform:translate(-50%,-50%) scale(.9)}
+  76%{opacity:1;transform:translate(-50%,-42%) scale(2)}
+  87%{opacity:1;transform:translate(-50%,-33%) scale(4.8)}
+  100%{opacity:1;transform:translate(-50%,-22%) scale(7)}
+}
+@keyframes death-camera{0%{transform:translate(0,0)}20%{transform:translate(-12px,6px) rotate(-1deg)}50%{transform:translate(7px,-4px) rotate(.6deg)}80%{transform:translate(-3px,2px)}100%{transform:none}}
+@keyframes death-door-left{from{transform:translateX(-100%)}to{transform:translateX(0)}}
+@keyframes death-door-right{from{transform:translateX(100%)}to{transform:translateX(0)}}
+@media(max-width:560px){.death-controls{right:14px;gap:7px}.death-controls button{font-size:10px;padding:8px 10px}.death-monster{width:96vw}.death-caption{font-size:17px;letter-spacing:2px;bottom:16vh}.death-last-line h2{font-size:31px;letter-spacing:5px}.death-last-line span{font-size:12px;line-height:1.8}}
+@media(prefers-reduced-motion:reduce){
+  .death-sequence{animation:none}.death-monster.is-ready{animation:death-still 2.6s ease both;transform:translate(-50%,-50%) scale(1)}
+  .death-impact .death-stage{animation:none}.death-doors span:first-child,.death-doors span:last-child{animation:none}
+  .death-last-line{transform:none;transition:opacity .6s}.death-caption{transition:opacity .6s}
+}
+@keyframes death-still{from{opacity:0}to{opacity:1}}

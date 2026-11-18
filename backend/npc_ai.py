@@ -81,6 +81,31 @@ mode=invite时，根据个人目标、与玩家的关系、自己的记忆和已
 privateInvitations只记录你自己的邀约结果；玩家婉拒不等于承认任何案情。
 mode=private且privateInitiative存在时，玩家刚接受你的邀约：由你主动开场，说出想谈的事，
 可以试探、提出交换或争取合作。只能在这时选择私下分享你实际持有的线索。
+
+mode=dungeon时，你扮演规则怪谈生存副本中的NPC，channel说明公开回应还是私聊。
+世界时间、异常、生死、救助、出口由固定规则执行，不能用台词改写或替玩家执行。
+只能知道提供给自己的材料，不能猜中未提供的病房、腕带、暗号或接线标签后当成事实。
+你可以依据自己的利益合作、拒绝或按strategy诱导；没有提供的机制不能新增。
+额外返回npcActionId：必须从availableNpcActions选择一项，wait表示等待。
+所选行动会真实执行；reply与选择保持一致，不交付时不要声称已经交付。
+evidenceIds仍只能分享自己持有的候选材料；channel=private只给玩家，public才公开。
+voteId返回null，wantsPrivateChat返回false。
+currentEncounter是正在发生的现场。围绕具体物件、险情或对方的问题回应；不要只说“谨慎、核对规则”。
+同一现场可以连续交谈，结合前一句追问、反驳或提出具体交换条件；一次不答应不代表永远拒绝。
+presentedEvidence是玩家这轮实际私下出示的材料，只有你看见；可根据它改变立场，但不要替其他NPC知晓。
+可用行动的description说明实际合作范围。答应交钥匙、压箱盖或松开床栏时选择对应行动，
+不要只口头答应却选wait；尚未说服时给出具体顾虑或条件，让玩家有话可接。
+许宁只有在哥哥问出童年问题时才回答约定，并选择answer_memory；这不自动完成三项核验或救助。
+witnessedActions只记录你本人在场看到的事，你不知其他房间的行动和别人私聊。
+世界flags只给你可知的状态；没有字段表示不知道，不要补全推断成事实。
+relationship是你与许舟的现场关系：负值说明他曾动手威逼或伤害你，记住这件事，
+不要一句空泛道歉就恢复配合；要求他解释具体做法或展示可信行动。零表示尚无这类冲突。
+若玩家本轮原话主动泄露了私密问答，可以记住他确实说过的内容，不能把听来的话说成自己本来知道。
+系统提问说“主动开口/亲眼看见”时，是现场触发，不是玩家已经向你承诺了什么。
+用1至4句接着眼前的物件/险情说话，留出对方能接的话题；避免套话式报幕与每轮重复交代规则。
+恐惧、猜测和诱导可以存在，但不要把新猜测说成已经验证的机制。比如“贴门听就会被察觉”
+没有提供给你，不能说成事实；可以说“我怕它听见你，先离门远一点”。
+wait表示不追加新的合作效果，不会撤回已经交出的钥匙、工牌或已经完成的救助。
 """
 
 
@@ -100,8 +125,16 @@ def ai_configuration() -> dict[str, str]:
 def generate_reply(context: dict[str, Any], history: list[dict[str, str]],
                    question: str) -> dict[str, Any]:
     config = ai_configuration()
+    if context.get("mode") == "intent":
+        if __package__:
+            from .dungeon_presence import INTENT_PROMPT
+        else:
+            from dungeon_presence import INTENT_PROMPT
+        prompt = INTENT_PROMPT
+    else:
+        prompt = SYSTEM_PROMPT
     messages = [
-        {"role": "system", "content": SYSTEM_PROMPT},
+        {"role": "system", "content": prompt},
         {"role": "system", "content": json.dumps(context, ensure_ascii=False)},
     ]
     for turn in history[-20:]:
@@ -110,7 +143,7 @@ def generate_reply(context: dict[str, Any], history: list[dict[str, str]],
         messages.append({"role": "assistant", "content": turn["response"]})
     messages.append({"role": "user", "content": question})
     if config["provider"] == "traex":
-        return generate_traex_reply(config, context, history, question)
+        return generate_traex_reply(config, context, history, question, prompt)
     elif config["provider"] == "openai":
         result = generate_openai_reply(config, messages)
     else:
@@ -119,7 +152,8 @@ def generate_reply(context: dict[str, Any], history: list[dict[str, str]],
 
 
 def generate_traex_reply(config: dict[str, str], context: dict[str, Any],
-                         history: list[dict[str, str]], question: str) -> dict[str, Any]:
+                         history: list[dict[str, str]], question: str,
+                         prompt: str = SYSTEM_PROMPT) -> dict[str, Any]:
     try:
         timeout = float(config["traex_timeout"])
         if not 0 < timeout <= 600:
@@ -141,7 +175,7 @@ def generate_traex_reply(config: dict[str, str], context: dict[str, Any],
                 if attempt:
                     worker.format_retries += 1
                 text, response_id = worker.reply(
-                    {**config, "traex_timeout": str(remaining)}, SYSTEM_PROMPT,
+                    {**config, "traex_timeout": str(remaining)}, prompt,
                     current_context, history, question, format_correction=correction,
                 )
                 stage = "json"
@@ -269,6 +303,16 @@ def validate_reply(result: Any, context: dict[str, Any]) -> dict[str, Any]:
     try:
         if not isinstance(result, dict):
             raise ValueError("Expected object")
+        if context.get("mode") == "intent":
+            if result.get("intentId") not in {a["id"] for a in context["availableIntents"]}:
+                raise ValueError("Invalid scene intent")
+            if not isinstance(result.get("reply"), str) or not 0 < len(result["reply"].strip()) <= 600:
+                raise ValueError("Invalid scene feedback")
+            return {"intentId": result["intentId"], "reply": result["reply"].strip(),
+                    "_responseId": result.get("_responseId")}
+        if context.get("mode") == "dungeon":
+            if result.get("npcActionId") not in {a["id"] for a in context["availableNpcActions"]}:
+                raise ValueError("Invalid NPC action")
         reply = result["reply"]
         memory = result["memory"]
         emotion = result["emotion"]

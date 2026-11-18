@@ -254,6 +254,16 @@ class TraexWorker:
                 self._start(config, deadline)
                 self.game_id = game_id
                 schema = json.loads(Path(__file__).with_name("npc_response.schema.json").read_text())
+                if context.get("mode") == "intent":
+                    schema = {"type": "object", "additionalProperties": False,
+                              "properties": {
+                                  "intentId": {"type": "string", "enum": [a["id"] for a in context["availableIntents"]]},
+                                  "reply": {"type": "string"}},
+                              "required": ["intentId", "reply"]}
+                if context.get("mode") == "dungeon":
+                    schema["properties"]["npcActionId"] = {
+                        "type": "string", "enum": [a["id"] for a in context["availableNpcActions"]]}
+                    schema["required"].append("npcActionId")
                 session = self.sessions.get(role_id)
                 # A thread may include a response that the game rejected after generation.
                 # Reuse it only when its last turn was actually committed by the game.

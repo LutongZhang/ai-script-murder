@@ -9,6 +9,7 @@ dist/
 .npm-cache/
 .screenshots/
 .uploads/
+.saves/
 *.log
 .env
 .env.*

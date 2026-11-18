@@ -4,7 +4,7 @@ from __future__ import annotations
 from copy import deepcopy
 from typing import Any
 
-ACTIONS = {"private", "initiative", "search", "publish", "discuss", "vote"}
+ACTIONS = {"private", "initiative", "search", "publish", "discuss", "vote", "act"}
 KINDS = {"reading", "exchange", "search", "discussion", "accusation", "reveal"}
 CLASSIC_MODE = {
     "id": "classic", "label": "六幕剧本杀",

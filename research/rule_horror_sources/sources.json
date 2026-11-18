@@ -1,0 +1,59 @@
+{
+  "retrieved_at": "2026-11-17T12:41:12.523425+00:00",
+  "method": "Explicit URL allowlist; robots.txt checked; article body extracted without images.",
+  "scope": "Original and Chinese translation are two versions of one story, not independent evidence.",
+  "adaptation": "Night Ward uses the enclosed survival/day-night/exit motifs. Hospital, characters, rules, variants and endings are newly written derivative content.",
+  "sources": [
+    {
+      "id": "scp_3008_original",
+      "url": "https://scp-wiki.wikidot.com/scp-3008",
+      "title": "SCP-3008 — A Perfectly Normal, Regular Old IKEA",
+      "author": "Mortos",
+      "translator": null,
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "status": "collected",
+      "final_url": "https://scp-wiki.wikidot.com/scp-3008",
+      "content_type": "text/html; charset=utf-8",
+      "file": "scp_3008_original.html",
+      "text_file": "scp_3008_original.txt",
+      "bytes": 58531,
+      "text_characters": 23768,
+      "sha256": "71700275703b54ba9a42cbf69728169ad4ff43673efa8cacba73cba3053d4a66"
+    },
+    {
+      "id": "scp_3008_chinese",
+      "url": "https://scp-wiki-cn.wikidot.com/scp-3008",
+      "title": "SCP-3008 — 非常普通标准的老宜家",
+      "author": "Mortos",
+      "translator": "ashausesall",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "status": "collected",
+      "final_url": "https://scp-wiki-cn.wikidot.com/scp-3008",
+      "content_type": "text/html; charset=utf-8",
+      "file": "scp_3008_chinese.html",
+      "text_file": "scp_3008_chinese.txt",
+      "bytes": 64759,
+      "text_characters": 7056,
+      "sha256": "38c48b779054d76510e6de6cb1e153a549c535403920ec5204cc5c667e2e3ff5"
+    },
+    {
+      "id": "scp_licensing",
+      "url": "https://scp-wiki.wikidot.com/licensing-guide",
+      "title": "SCP Wiki Licensing Guide",
+      "author": "SCP Wiki",
+      "translator": null,
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "status": "collected",
+      "final_url": "https://scp-wiki.wikidot.com/licensing-guide",
+      "content_type": "text/html; charset=utf-8",
+      "file": "scp_licensing.html",
+      "text_file": "scp_licensing.txt",
+      "bytes": 55309,
+      "text_characters": 18547,
+      "sha256": "091a74b09488ccb2aadf85cf47873231034dd68441e1caaf86e40136eb19ebad"
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>第七夜：夜班病院 · 副本设计</title>
+<style>
+:root{color-scheme:dark;font-family:"PingFang SC",system-ui,sans-serif;color:#e5ebe7;background:#101715;--muted:#a6b8b0;--line:#34433d;--focus:#b9d6c5}
+*{box-sizing:border-box}body{margin:0}main{max-width:1000px;margin:auto;padding:48px 24px 72px}
+header{border-bottom:1px solid var(--line);padding-bottom:28px}h1{font-family:"Songti SC",serif;font-size:clamp(32px,5vw,48px);font-weight:500;margin:14px 0}h2{font-size:22px;font-weight:500;margin:38px 0 16px}h3{font-size:17px;font-weight:500}p,li{font-size:15px;line-height:1.9}p{color:var(--muted)}small,.label{color:var(--focus);font-size:12px;letter-spacing:1px}a{color:var(--focus)}table{border-collapse:collapse;width:100%;font-size:14px}th,td{padding:14px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top;line-height:1.8}th{color:var(--focus);font-weight:500}.panel{padding:20px;border:1px solid var(--line);border-radius:10px;background:#18231e;margin:20px 0}.flow{display:flex;flex-wrap:wrap;gap:12px}.flow span{padding:10px 14px;border:1px solid var(--line);border-radius:6px;font-size:14px}button{font:inherit;color:inherit;background:#25362d;border:1px solid var(--line);border-radius:6px;padding:10px 14px;cursor:pointer}button:focus-visible{outline:2px solid var(--focus)}button:disabled{opacity:.45;cursor:not-allowed}.demo-actions{display:flex;flex-wrap:wrap;gap:10px}.demo-output{min-height:60px;border-top:1px solid var(--line);padding-top:16px}.note{border-left:3px solid var(--focus);padding-left:16px}details{margin:18px 0}summary{cursor:pointer;color:var(--focus)}.spoiler{color:#d5c9b0}@media(max-width:600px){main{padding:28px 16px}th,td{padding:10px 6px;font-size:12px}}
+</style>
+</head>
+<body><main>
+<header><small>局中人 / 首个规则怪谈副本 / 2026-11-17</small><h1>第七夜：夜班病院</h1><p>你来找失踪的妹妹。病院里的每个人，都希望你先替他做一件事。</p></header>
+<section><h2>体验与范围</h2><p>用户已确认从剧本杀扩展到副本通关，并要求检索怪谈故事后制作一个副本。本设计采用单人护工身份、四名AI NPC、有限回合调查与多结局。玩家通过记录和人物交谈核验规则，通过明确行动改变世界。</p><p><strong>产品判断：</strong>关键通关材料全部有固定调查路径，NPC合作能缩短获取路径或挡住一次危险。NPC可以拒绝或诱导，不能单独决定玩家是否死亡，也不能制造没有解法的规则。</p><p>本轮采用两种预先写好的布局；新增人物利益和医院情节是衍生创作，不是对原作情节的还原。跨副本记忆、多人房间和长期存档不属于这一轮体验。</p></section>
+<section><h2>从剧本库走向副本库</h2><p>入口继续沿用“选故事、领身份、成为局中人”，每个副本有自己的胜负条件。剧本杀通过交流、搜证和秘密指认收束；规则怪谈通过核验规则、管理行动时间和寻找出口收束。后续可加入密室逃脱、任务潜入或合作生存，但这些类型需要各自明确的行动与结局判定，本轮不声称已实现。</p><div class="flow"><span>故事与身份配置</span><span>角色隔离与记忆</span><span>副本专属规则</span><span>AI选择有限行为</span><span>固定判定与复盘</span></div><p>共用角色私聊、线索、记忆隔离与模型连接；专属引擎负责时间、危险、物理行动和结局。AI负责不可预测的人物策略，配置与引擎保证规则能够被核验。本次用一个完整医院副本验证这条路径，保留现有剧本杀体验。</p></section>
+<section><h2>一局怎样完成</h2><div class="flow"><span>领取护工身份</span><span>读六条值班须知</span><span>调查与私聊</span><span>核验身份、执行行动</span><span>窗口内离开</span><span>结局与复盘</span></div><p>角色许舟为寻找妹妹许宁进入病院。成功离开即完成基础通关；核验并带回妹妹、恢复老病人实名、清除巡查危险决定更完整的结局。异常累积至三次或未在最后时限前离开，进入失败复盘。</p></section>
+<section><h2>人物与利益</h2><table><thead><tr><th>人物</th><th>想得到什么</th><th>能实际做什么</th></tr></thead><tbody>
+<tr><td>沈青 · 护士长</td><td>希望有人逃出去，也想隐藏删改病历的责任</td><td>主动交付备用工牌，或者暂时拒绝</td></tr>
+<tr><td>周槐 · 老病人</td><td>让实名回到交班册，避免再次被抹去</td><td>分享门闩与巡查残片经验，试探救助意愿</td></tr>
+<tr><td>陆闻 · 维修护工</td><td>找到谨慎且愿意合作的同伴</td><td>分享本轮接线标签；加固一份只能挡一次巡查的护栏</td></tr>
+<tr><td>广播里的来电者</td><td>诱使玩家循声开门或提前闯门</td><td>播放诱导广播；是否跟随仍由玩家选择</td></tr>
+</tbody></table><p>NPC只知道自己的经历、持有线索、公开信息以及本人和玩家的私聊。玩家的童年暗号不自动进入其他角色的认知；实际提供给某角色的材料，才成为该角色的已知信息。</p></section>
+<section><h2>功能行为</h2>
+<h3>FR-01 · 入职与读本</h3><p>副本库展示故事类型、来源和当前进度。进入后只允许扮演许舟，另外四人由AI扮演。读本展示共同开场、自己的秘密、童年问答和六条须知；开始夜班前不消耗行动。重复进入保留本轮布局与进度，重开重新选择布局。</p>
+<h3>FR-02 · 调查与线索</h3><p>点击地点表示前往并调查，成功消耗半小时，线索先进入个人手牌。六个地点整局各能调查一次；不能重复调查消耗行动。原始转床登记与腕带要符合本轮布局，另一病房只给空床记录。材料可免费阅读、免费公开；公开后所有NPC都能看到。</p>
+<h3>FR-03 · 私聊与NPC行动</h3><p>玩家选择人物自由交谈。一次成功私聊消耗半小时，该人物依据当前信息生成回答，并从自己的可用行为中选择一项实际行动。生成失败不增加半小时，不交付材料、不更新记忆。输入与既有对话保留，可重试。</p><p>每次成功的地点调查或普通行动之后，按四人轮换顺序安排一名NPC回应并行动。等待回应期间暂停玩家的新行动。已执行的调查与时间保留；AI失败后点击继续，只重试该人物，不重复扣时。NPC回应不额外扣时。离开与已结束的副本不再安排回应。</p>
+<h3>FR-04 · 明确行动与有代价试错</h3><p>玩家可记录周槐姓名、清除残片、切换A/B回路、核验并带回许宁、取得备用工牌、等待或离开。需要材料的行动显示缺少哪些已经定义的材料；已经完成的行动禁用。每项行动包含地点与耗时，执行时自动前往说明中的地点。自然语言承诺或NPC台词不能代替行动。</p><p>循声开门、强行闯门和合错回路各增加一次异常，仍保留纠正机会。高风险按钮先显示后果范围，确认后才执行；取消不耗时。异常达三次时结束本局。确认窗口内世界发生变化时，旧请求失败，用户查看新状态后再决定。</p>
+<div class="panel" data-demo="risk"><span class="label">风险操作演示 · 不连接真实副本</span><p>当前异常：<strong data-anomaly>0</strong> / 3。一次错误不会立即结束。</p><div class="demo-actions"><button data-risk>循声开门</button><button data-safe>取消，先核验</button><button data-reset>重置演示</button></div><p class="demo-output" aria-live="polite" data-feedback>请选择一种回应。此演示只呈现固定规则反馈，不模拟真实AI。</p></div>
+<h3>FR-05 · 时间、巡查与离开</h3><p>开始时23:00，行动从0计数，每次调查、普通行动或成功私聊增加半小时。行动4完成时01:00熄灯；行动6完成时02:00、行动9完成时03:30各巡查一次。护士站门闩能避过巡查；其他地点需要正确供电与残片清理同时完成，或消耗陆闻的一次性护栏，否则增加一次异常。</p><p>行动12完成时05:00，出口窗口开启。持有工牌可离开，不另外扣时；行动16完成时07:00，窗口关闭并进入失败结局。最后一项有效行动为行动15，界面显示剩余时间；在行动15仍可以免费离开。阅读与公开材料不会推进时间。</p>
+<div class="panel" data-demo="exit"><span class="label">出口状态演示</span><div class="demo-actions"><button data-step="early">04:30 · 有工牌</button><button data-step="missing">05:00 · 无工牌</button><button data-step="ready">05:00 · 有工牌</button><button data-step="closed">07:00 · 未离开</button></div><p class="demo-output" aria-live="polite" data-feedback>04:30：窗口未开启，不能执行正式离开。</p></div>
+<h3>FR-06 · 结局与复盘</h3><table><thead><tr><th>结局</th><th>核验条件</th></tr></thead><tbody>
+<tr><td>独自归来</td><td>窗口内持工牌离开，没有实际救出许宁</td></tr><tr><td>带她回家</td><td>窗口内离开，已核验并救出许宁</td></tr><tr><td>把名字带出黑夜</td><td>带回许宁，登记周槐实名，恢复正确供电并清除残片</td></tr><tr><td>留在第七夜</td><td>异常达到三次，或行动16完成时仍未离开</td></tr>
+</tbody></table><p>仅结束后揭晓本轮真实布局、六条规则解释、四人秘密及实际执行的行动记录。判定依据固定世界状态，不把AI口头承诺算作救助或通关。陆闻是否愿意同行等开放角色目标作为剧情回顾，不伪装成已经完成的机械判定。</p></section>
+<section><h2>来源与衍生边界</h2><p>已抓取 <a href="https://scp-wiki.wikidot.com/scp-3008">SCP-3008</a> 原文（作者 Mortos）、<a href="https://scp-wiki-cn.wikidot.com/scp-3008">中文译文</a>（译者 ashausesall）与 <a href="https://scp-wiki.wikidot.com/licensing-guide">官方授权说明</a>。原文与译文是同一故事的两种版本，不是两份独立证据。</p><p>原作母题包括封闭空间、照明控制的昼夜循环、幸存者庇护、不稳定出口和引来袭击的残片。本副本把这些母题改为医院背景，并新增角色利益、规则文本、两种接线与病房布局、身份核验、固定出口窗口和多结局。原作未提供医院故事，不声称这是原作里的另一章节。</p><p>本副本叙事与本设计中的衍生内容基于 Mortos 的 SCP-3008，参考 ashausesall 的中文译文，按 <a href="https://creativecommons.org/licenses/by-sa/3.0/">CC BY-SA 3.0</a> 提供；已修改场景、人物、规则与结局。来源正文、抓取时间和SHA-256记录保存在 research/rule_horror_sources 中。</p></section>
+<details><summary>展开设计中的固定真相（剧透）</summary><p class="spoiler">广播来电者是模仿招聘登记的回声。红制服批注是沈青添加的误导，工牌权限与颜色无关。许宁的位置在307与309之间按局切换，正确回路在A与B之间切换；本轮原始档案、床边腕带和接线标签提供稳定解法。姓名登记、清理残片、正确供电和身份核验均有固定调查路径。</p></details>
+</main><script>
+for(const demo of document.querySelectorAll('[data-demo]')){
+ const feedback=demo.querySelector('[data-feedback]');
+ if(demo.dataset.demo==='risk'){
+  let n=0,confirm=false;
+  const risk=demo.querySelector('[data-risk]'),value=demo.querySelector('[data-anomaly]');
+  risk.addEventListener('click',()=>{if(n>=3)return;if(!confirm){confirm=true;risk.textContent='确认冒险';feedback.textContent='不核验就开门，将增加一次异常。你可以取消，材料和时间不变。';return;}confirm=false;n++;value.textContent=n;risk.textContent='循声开门';feedback.textContent=n===3?'异常达到三次：本局进入失败复盘。':'门后是循环录音，异常增加一次。仍可以退回并核验身份。';risk.disabled=n===3;});
+  demo.querySelector('[data-safe]').addEventListener('click',()=>{confirm=false;risk.textContent='循声开门';feedback.textContent='取消冒险，没有增加异常或消耗时间。';});
+  demo.querySelector('[data-reset]').addEventListener('click',()=>{n=0;confirm=false;value.textContent=0;risk.disabled=false;risk.textContent='循声开门';feedback.textContent='演示已重置。';});
+ }else{const texts={early:'04:30：窗口未开启，不能执行正式离开。',missing:'05:00：窗口已开启，但缺少编号工牌。可回护士站取备用工牌。',ready:'05:00：工牌与窗口均符合，可以离开；是否带回妹妹取决于实际救助记录。',closed:'07:00：窗口关闭，未离开的本局进入失败复盘。'};for(const button of demo.querySelectorAll('[data-step]'))button.addEventListener('click',()=>{feedback.textContent=texts[button.dataset.step];});}
+}
+</script></body></html>

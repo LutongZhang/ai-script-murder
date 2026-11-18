@@ -11,17 +11,25 @@ from urllib.parse import parse_qs, urlsplit
 
 if __package__:
     from .game import Game, GameError
+    from .dungeon import DungeonGame
     from .npc_ai import AIError, generate_reply, start_ai, stop_ai, ai_status
     from .scripts import DEFAULT_SCRIPT_ID, load_scripts, script_summary
+    from .savegame import GameStore
 else:
     from game import Game, GameError
+    from dungeon import DungeonGame
     from npc_ai import AIError, generate_reply, start_ai, stop_ai, ai_status
     from scripts import DEFAULT_SCRIPT_ID, load_scripts, script_summary
+    from savegame import GameStore
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 DIST_DIR = BASE_DIR / "frontend" / "dist"
 SCRIPTS = load_scripts()
-GAMES = {script_id: Game(script, generate_reply) for script_id, script in SCRIPTS.items()}
+GAMES = {script_id: (DungeonGame if script.get("gameType") == "dungeon" else Game)(script, generate_reply)
+         for script_id, script in SCRIPTS.items()}
+STORE = GameStore(BASE_DIR / ".saves")
+for saved_game in GAMES.values():
+    STORE.load(saved_game)
 # Keep the original default-script entry points usable for local integrations.
 CASE_DATA = SCRIPTS[DEFAULT_SCRIPT_ID]
 GAME = GAMES[DEFAULT_SCRIPT_ID]
@@ -136,11 +144,33 @@ class RequestHandler(BaseHTTPRequestHandler):
             elif path == "/api/advance":
                 response = game.advance(confirm_accusation=payload.get("confirmAccusation") is True)
             elif path == "/api/search":
-                response = game.search(text_field("locationId"))
+                response = (game.search(text_field("locationId"), expected_version=payload.get("version"))
+                            if isinstance(game, DungeonGame) else game.search(text_field("locationId")))
+            elif path in {"/api/approach", "/api/choice", "/api/scene-action", "/api/scene-turn", "/api/silence"}:
+                if not isinstance(game, DungeonGame):
+                    raise GameError("这个剧本没有现场交涉。")
+                if path == "/api/approach":
+                    response = game.approach(text_field("npcId"), expected_version=payload.get("version"))
+                elif path == "/api/choice":
+                    response = game.choose(text_field("encounterId"), text_field("choiceId"),
+                                           expected_version=payload.get("version"))
+                elif path == "/api/scene-action":
+                    response = game.free_action(text_field("message"), expected_version=payload.get("version"))
+                elif path == "/api/scene-turn":
+                    response = game.scene_turn(text_field("cueId"))
+                else:
+                    response = game.silence(text_field("cueId"))
+            elif path == "/api/act":
+                if not isinstance(game, DungeonGame):
+                    raise GameError("这个剧本没有副本行动。")
+                response = game.act(text_field("actionId"), confirm=payload.get("confirm") is True,
+                                    expected_version=payload.get("version"))
             elif path == "/api/publish":
                 response = game.publish(text_field("evidenceId"))
             elif path == "/api/question":
-                response = game.private(text_field("npcId"), text_field("question"))
+                response = (game.private(text_field("npcId"), text_field("question"),
+                                         evidence_ids=payload.get("evidenceIds"), expected_version=payload.get("version"))
+                            if isinstance(game, DungeonGame) else game.private(text_field("npcId"), text_field("question")))
             elif path == "/api/initiative":
                 response = game.initiative()
             elif path == "/api/invitation-response":
@@ -155,8 +185,11 @@ class RequestHandler(BaseHTTPRequestHandler):
                 self._write_json({"error": "Not found"}, HTTPStatus.NOT_FOUND)
                 return
         except (AIError, GameError) as exc:
+            if "game" in locals():
+                STORE.save(game)
             self._write_json({"error": str(exc)}, exc.status)
             return
+        STORE.save(game)
         self._write_json(response)
 
     def log_message(self, format: str, *args: Any) -> None:

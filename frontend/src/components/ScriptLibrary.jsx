@@ -14,7 +14,7 @@ export function ScriptLibrary({ scripts, busy, onSelect }) {
       <div className="script-cover" aria-hidden="true">
         <span className="cover-index">CASE / {String(index + 1).padStart(2, "0")}</span>
         <div className={`cover-symbol symbol-${script.theme}`}><span>{script.coverText}</span></div>
-        <span className="cover-caption">{script.locationLabel} · {script.playerCount} 人本</span>
+        <span className="cover-caption">{script.locationLabel} · {script.gameType === "dungeon" ? "生存副本" : `${script.playerCount} 人本`}</span>
       </div>
       <div className="script-body">
         <div className="script-meta"><span>{script.availability.status === "ready" ? script.difficulty : "待补齐原作"}</span><span>{script.duration}</span></div>
