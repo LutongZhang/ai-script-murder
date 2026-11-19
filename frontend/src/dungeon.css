@@ -176,3 +176,149 @@
 @media(prefers-reduced-motion:reduce){
   .scene-background.ready,.scene-character,.hotspot-ring,.night-scene:after{animation:none}.scene-background{transition:none}
 }
+
+/* Visual novel: one stage, one passage, then a deliberate choice. */
+.is-visual-novel{background:#070c0b}
+.is-visual-novel .topbar{height:54px;padding:0 24px;background:#080e0de8}
+.is-visual-novel .brand{font-size:21px}
+.is-visual-novel .site-footer{display:none}
+.is-visual-novel .error{position:fixed;z-index:34;top:65px;left:24px;right:24px;margin:0;max-height:22vh;overflow:auto;background:#291713f5}
+.dungeon-workspace.vn-workspace{max-width:1680px;padding:12px 24px 8px;--gold:#d3c298}
+.vn-workspace .scene-quest{margin-bottom:10px;gap:16px}
+.vn-workspace .scene-quest>div{display:flex;align-items:center;gap:17px;min-width:0}
+.vn-workspace .scene-quest .eyebrow{font-size:10px;white-space:nowrap;color:#cabb98}
+.vn-workspace .scene-quest p{font-size:14px;margin:0;line-height:1.5;color:#b9c4b8}
+.vn-workspace .scene-quest nav{gap:6px}
+.vn-workspace .scene-quest nav button{font-size:11px;padding:7px 10px;background:transparent;border-color:#b9cbb225}
+.vn-stage{height:calc(100dvh - 140px);min-height:400px;max-height:980px;display:block;padding:0;border-radius:6px;border-color:#d9ca9f38}
+.vn-stage .scene-background{height:100%;object-position:center 40%}
+.vn-stage .scene-vignette{background:linear-gradient(180deg,#020a0be0,transparent 23%,transparent 45%,#030b0b45 70%,#020807e6),linear-gradient(90deg,#0003,transparent 35%,#0002);box-shadow:inset 0 0 100px #0005}
+.vn-stage .scene-hud{top:22px;left:27px;right:27px;align-items:flex-start}
+.vn-stage .scene-hud h1{font-size:27px;letter-spacing:4px;margin:6px 0}
+.vn-stage .scene-hud .eyebrow{font-size:9px;color:#d4c6a4}
+.vn-stage .scene-clock strong{font-size:27px;color:#f0e8d7}
+.vn-stage .scene-clock span{font-size:10px;margin-top:5px}
+.vn-stage .scene-risk{top:91px;left:28px;font-size:10px}
+.vn-stage .scene-companion{top:118px;left:27px;border-color:#d3c29838;background:#101811b8;padding:8px 12px}
+.vn-stage .scene-companion i{font-size:19px;color:#d3c298;font-style:normal}
+.vn-stage .scene-companion small{font-size:9px;margin-top:2px}
+.vn-stage .scene-character{top:6%;bottom:auto;right:2%;height:93%;width:40%;max-width:610px;z-index:-1}
+.vn-stage .scene-character img{object-fit:cover;object-position:50% 0}
+.vn-stage .scene-character figcaption{bottom:250px;right:28px;font-size:10px;color:#e0d8bd;background:#08100d80}
+.vn-stage .scene-character.is-intercom{top:15%;height:57%;width:26%;right:6%}
+.vn-stage.is-danger:after{animation:night-breath 3.4s ease-in-out infinite;box-shadow:inset 0 0 130px #a54c3755}
+.vn-dialogue{position:absolute;z-index:3;left:26px;right:26px;bottom:20px;padding:24px 27px 12px;background:linear-gradient(115deg,#07110fee,#081310e8 65%,#0b1411ef);border:1px solid #c8b88855;box-shadow:0 12px 35px #0008,inset 0 1px #e3d4a811;border-radius:3px}
+.vn-dialogue:before{content:"";position:absolute;left:25px;right:25px;top:6px;height:1px;background:linear-gradient(90deg,#c9b88360,transparent)}
+.vn-nameplate{position:absolute;top:-17px;left:25px;display:flex;align-items:center;gap:15px;max-width:calc(100% - 50px)}
+.vn-nameplate>span{font-family:"Songti SC","STSong",serif;font-size:18px;letter-spacing:3px;padding:7px 25px;min-width:100px;text-align:center;color:#f2e8cb;background:linear-gradient(120deg,#25372d,#14261f);border:1px solid #d6c18b85;border-radius:2px;box-shadow:0 3px 12px #0005}
+.vn-nameplate>small{font-size:10px;color:#d0c5a8;text-shadow:0 1px 8px #000;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.vn-line{display:block;width:100%;min-height:102px;margin-top:9px;padding:10px 2px 13px;text-align:left;position:relative;border:0;background:transparent!important;color:#ececdb;box-shadow:none;cursor:pointer;border-radius:0}
+.vn-line:disabled{opacity:1;cursor:default}
+.vn-line-text{display:block;font-family:"Songti SC","STSong",serif;font-size:clamp(16px,1.4vw,21px);letter-spacing:.8px;line-height:1.9;white-space:pre-wrap;overflow-wrap:anywhere}
+.vn-continue-mark{position:absolute;right:3px;bottom:0;font-size:10px;color:#cbb68b;animation:vn-prompt 1.7s ease-in-out infinite}
+.vn-dialogue-footer{display:flex;justify-content:space-between;align-items:center;gap:16px;border-top:1px solid #c2b38d22;padding-top:10px}
+.vn-reading-state{display:flex;align-items:center;gap:17px;font-size:10px;color:#a9b5a5;min-width:0}
+.vn-reading-state>span:first-child{font-variant-numeric:tabular-nums;letter-spacing:2px;white-space:nowrap;color:#c8ba99}
+.vn-generating{display:flex;align-items:center;gap:9px;line-height:1.6}
+.vn-generating .spinner{flex-shrink:0}
+.vn-tools{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.vn-tools button{border:0;padding:7px 10px;background:transparent;font-size:11px;color:#aebcae;border-radius:2px}
+.vn-more{position:relative}
+.vn-more>summary{list-style:none;cursor:pointer;padding:7px 10px;font-size:11px;color:#aebcae;border-radius:2px}
+.vn-more>summary::-webkit-details-marker{display:none}
+.vn-more>summary:focus-visible{outline:2px solid #d3c298;outline-offset:2px}
+.vn-more[open]>summary{color:#e4d3aa;background:#d9c28b14}
+.vn-more-menu{position:absolute;right:0;bottom:calc(100% + 8px);z-index:7;min-width:170px;padding:6px;background:#12251ff5;border:1px solid #cfbd9170;border-radius:3px;box-shadow:0 8px 25px #0008}
+.vn-tools .vn-more-menu button{display:block;width:100%;padding:10px 12px;text-align:left;white-space:nowrap;color:#e4d3aa}
+.vn-tools .vn-more-menu button:hover{background:#304d35ed}
+.vn-tools .vn-next{padding:7px 17px;margin-left:6px;color:#e4d3aa;border-left:1px solid #cab88c42;white-space:nowrap}
+.vn-next>span{margin-left:14px;font-size:20px;line-height:10px}
+.vn-wait-hint{margin:7px 0 0;font-size:11px;line-height:1.5;color:#bcbbaa}
+.vn-retry{display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:11px;padding-top:10px;color:#d3bda1}
+.vn-retry button{font-size:10px;padding:5px 10px}
+.vn-decisions{position:absolute;z-index:4;left:50%;transform:translateX(-50%);bottom:230px;width:min(530px,56%);text-align:center;animation:vn-choices-in .3s ease both}
+.vn-decision-caption{display:block;font-family:"Songti SC","STSong",serif;font-size:12px;color:#e1d4b4;letter-spacing:4px;margin-bottom:13px;text-shadow:0 2px 8px #000}
+.vn-choice-list{display:flex;flex-direction:column;gap:7px;max-height:min(34vh,290px,calc(100dvh - 420px));overflow:auto;padding:3px 8px 5px;scrollbar-width:thin;scrollbar-color:#cbbb9055 #07110b55}
+.vn-choice-list>button{display:flex;align-items:center;gap:13px;min-height:45px;padding:11px 16px;text-align:left;font-size:13px;color:#e4e4d3;background:linear-gradient(95deg,#10221df2,#142b21e6,#12211bed);border:1px solid #bbae8455;border-radius:3px;box-shadow:0 4px 13px #0004}
+.vn-choice-list>button:hover:not(:disabled){background:#304d35ed;border-color:#dfc891;transform:translateX(3px)}
+.vn-choice-list>button>i{font-style:normal;font-size:9px;letter-spacing:1px;color:#bcad88;border-right:1px solid #d4be8d33;padding-right:11px}
+.vn-choice-list>button>span{flex:1;line-height:1.5}
+.vn-choice-list>button>small{color:#b5bda7;font-size:10px;line-height:1.4;max-width:38%;text-align:right}
+.vn-choice-list>button:disabled{opacity:.55}
+.vn-choice-list .danger-choice{color:#e5c3b1;border-color:#c0927155}
+.vn-choice-list .vn-back-choice{justify-content:center;background:#0b1712b8;font-size:11px;min-height:35px;color:#c3bea7}
+.vn-found{position:absolute;z-index:6;top:118px;right:25px;display:flex;align-items:center;gap:11px;max-width:min(550px,65%);background:#1a2a20ee;border:1px solid #d2bc8070;padding:11px 13px;border-radius:3px;box-shadow:0 4px 20px #0005}
+.vn-found>span{font-size:10px;color:#dfcd9e;white-space:nowrap}
+.vn-found>strong{font-size:12px;font-weight:400;color:#e1e3cf;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.vn-found button{font-size:10px;padding:5px 8px;border:0;background:#d9c28b14;white-space:nowrap;color:#dfcd9e}
+.vn-composer-backdrop{position:fixed;inset:0;z-index:36;display:flex;align-items:center;justify-content:center;padding:24px;background:#020a07b8;backdrop-filter:blur(6px)}
+.vn-composer-backdrop[hidden]{display:none}
+.vn-composer{width:min(650px,100%);max-height:85dvh;overflow:auto;padding:25px 28px;background:linear-gradient(135deg,#182b20,#0e1e17);border:1px solid #cfbd9170;border-radius:5px;box-shadow:0 20px 70px #0009;scrollbar-width:thin}
+.vn-composer>header{display:flex;justify-content:space-between;align-items:center;gap:12px;border-bottom:1px solid #c9b98f33;padding-bottom:17px;margin-bottom:17px}
+.vn-composer>header h2{font-size:23px;letter-spacing:2px;margin:7px 0 0}
+.vn-composer>header button{font-size:11px;white-space:nowrap}
+.vn-composer .scene-conversation-history{max-height:200px;overflow:auto}
+.vn-workspace .dungeon-source{font-size:9px;line-height:1.4;letter-spacing:0;margin:7px 0 0;color:#7e9182}
+.vn-workspace .scene-ending{max-width:980px;margin:25px auto}
+@keyframes vn-prompt{50%{transform:translateY(4px);opacity:.55}}
+@keyframes vn-choices-in{from{opacity:0;translate:0 8px}to{opacity:1;translate:0 0}}
+@media(max-width:900px){
+  .dungeon-workspace.vn-workspace{padding:10px 16px 8px}
+  .vn-workspace .scene-quest>div{display:block}
+  .vn-workspace .scene-quest p{font-size:12px;margin-top:3px}
+  .vn-stage{height:calc(100dvh - 146px);min-height:390px}
+  .vn-dialogue{left:18px;right:18px;bottom:17px;padding:24px 20px 10px}
+  .vn-line{min-height:112px}
+  .vn-decisions{bottom:238px;width:60%}
+  .vn-stage .scene-character{width:46%;right:0}
+  .vn-reading-state{gap:9px}
+  .vn-reading-state>span:last-child{font-size:9px}
+  .vn-tools button,.vn-more>summary{font-size:10px;padding:7px}
+}
+@media(max-width:560px){
+  .is-visual-novel .topbar{height:auto;min-height:58px;padding:10px 13px}
+  .is-visual-novel .header-actions{max-width:245px;gap:5px}
+  .is-visual-novel .header-actions button{padding:5px 7px;font-size:9px}
+  .is-visual-novel .error{top:75px;left:12px;right:12px;font-size:11px}
+  .dungeon-workspace.vn-workspace{padding:8px 9px}
+  .vn-workspace .scene-quest{gap:7px;margin-bottom:8px}
+  .vn-workspace .scene-quest>div{display:none}
+  .vn-workspace .scene-quest nav{justify-content:center;flex-wrap:nowrap;gap:5px}
+  .vn-workspace .scene-quest nav button{font-size:10px;padding:6px 8px;flex:1}
+  .vn-stage{height:calc(100dvh - 127px);min-height:475px;padding-top:0;display:block}
+  .vn-stage .scene-background{height:100%;object-position:47% center}
+  .vn-stage .scene-hud{left:17px;right:17px;top:17px}
+  .vn-stage .scene-hud h1{font-size:24px}
+  .vn-stage .scene-risk{left:18px;top:84px}
+  .vn-stage .scene-companion{left:17px;top:109px;font-size:10px;padding:6px 9px}
+  .vn-stage .scene-character{top:12%;right:-9%;width:78%;height:78%}
+  .vn-stage .scene-character figcaption{bottom:190px;right:30px;font-size:9px}
+  .vn-stage .scene-character.is-intercom{top:17%;height:46%;width:48%;right:3%}
+  .vn-dialogue{left:10px;right:10px;bottom:11px;padding:25px 15px 9px}
+  .vn-nameplate{left:14px;gap:8px;max-width:calc(100% - 28px)}
+  .vn-nameplate>span{font-size:16px;min-width:80px;padding:6px 15px}
+  .vn-nameplate>small{font-size:9px}
+  .vn-line{min-height:148px;padding-top:6px;margin-top:3px}
+  .vn-line-text{font-size:16px;line-height:1.85;letter-spacing:.3px}
+  .vn-dialogue-footer{display:block;padding-top:6px}
+  .vn-reading-state{font-size:9px;gap:12px;min-height:18px}
+  .vn-tools{justify-content:flex-end;margin-top:3px;gap:4px}
+  .vn-tools button,.vn-more>summary{font-size:10px;padding:6px 7px}
+  .vn-tools .vn-next{padding:6px 11px}
+  .vn-decisions{bottom:294px;width:88%}
+  .vn-choice-list{max-height:min(25dvh,calc(100dvh - 465px));gap:5px}
+  .vn-choice-list>button{font-size:12px;min-height:39px;padding:8px 11px;gap:9px}
+  .vn-choice-list>button>small{font-size:9px}
+  .vn-decision-caption{font-size:10px;margin-bottom:8px}
+  .vn-found{top:113px;right:13px;max-width:70%;padding:8px;gap:6px}
+  .vn-found>span{display:none}
+  .vn-found>strong{font-size:10px}
+  .vn-composer-backdrop{padding:14px}
+  .vn-composer{padding:19px 17px;max-height:88dvh}
+  .vn-composer>header h2{font-size:21px}
+  .vn-workspace .dungeon-source{font-size:8px;max-height:20px;overflow:auto}
+}
+@media(prefers-reduced-motion:reduce){
+  .vn-continue-mark,.vn-decisions,.vn-stage.is-danger:after{animation:none}
+  .vn-choice-list>button{transition:none}
+}

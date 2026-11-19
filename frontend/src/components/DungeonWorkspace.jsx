@@ -1,11 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { BookPanel } from "./BookPanel.jsx";
 import { EvidenceGrid } from "./EvidenceCard.jsx";
-import { DungeonEncounter } from "./DungeonEncounter.jsx";
-import { DungeonConversation } from "./DungeonConversation.jsx";
+import { DungeonNovel } from "./DungeonNovel.jsx";
 import { DeathSequence } from "./DeathSequence.jsx";
 import { useDeathSound } from "../hooks/useDeathSound.js";
-import { CHARACTERS, SCENES, sceneActions, sceneDescription } from "../hooks/dungeonScene.js";
+import { CHARACTERS, SCENES, sceneActions } from "../hooks/dungeonScene.js";
 import "../dungeon.css";
 
 export function DungeonWorkspace({ game, narration }) {
@@ -18,7 +17,7 @@ export function DungeonWorkspace({ game, narration }) {
   const [portraitFailed, setPortraitFailed] = useState(false);
   const [backgroundStatus, setBackgroundStatus] = useState("loading");
   const [imageAttempt, setImageAttempt] = useState(0);
-  const [companionReady, setCompanionReady] = useState(false);
+  const [speakerId, setSpeakerId] = useState(null);
   const [deathActive, setDeathActive] = useState(null);
   const previousResult = useRef(state.result?.id);
   const [soundEnabled, setSoundEnabled] = useState(() => {
@@ -50,17 +49,15 @@ export function DungeonWorkspace({ game, narration }) {
   const scene = SCENES[world.location];
   const clues = [...state.hand, ...state.publicEvidence];
   const knownClues = useRef(new Set(clues.map(item => item.id)));
-  const lastNpc = [...state.board].reverse().find(entry => state.npcs.some(npc => npc.id === entry.speakerId));
   const pendingNpc = state.pendingSpeakers[0];
   const npc = state.npcs.find(person => person.id === (state.presentNpcId || pendingNpc));
   const knownRoom = clues.find(item => item.id === "roster")?.summary.match(/(307|309)/)?.[1];
   const sisterHere = world.flags.sisterRescued || (world.flags.sisterVerified && world.location === `ward${knownRoom}`);
-  const characterId = state.encounter?.source === "patrol" ? "patrol" : npc?.id || (sisterHere ? "sister" : null);
+  const characterId = state.encounter?.source === "patrol" ? "patrol" : speakerId || npc?.id || (sisterHere ? "sister" : null);
   const character = CHARACTERS[characterId];
+  const characterPerson = state.npcs.find(person => person.id === characterId);
   const visibleActions = sceneActions(state, world.location);
   const evidenceHere = clues.filter(item => scene.evidence.includes(item.id));
-  const lastEvent = [...state.board].reverse().find(entry => entry.speakerId === "host"
-    && !state.npcs.some(person => entry.text.startsWith(`${person.name}：`)));
   const conversationOpen = Boolean(state.encounter) && !state.result;
 
   useEffect(() => {
@@ -111,7 +108,7 @@ export function DungeonWorkspace({ game, narration }) {
 
   const foundItems = clues.filter((item, index) => found.includes(item.id) && clues.findIndex(other => other.id === item.id) === index);
 
-  return <main className={`dungeon-workspace scene-workspace${world.night ? " is-night" : ""}`}>
+  return <main className={`dungeon-workspace scene-workspace vn-workspace${world.night ? " is-night" : ""}`}>
     <div className="scene-quest">
       <div><span className="eyebrow">第七夜 / 你是许舟</span><p>{state.result ? state.result.title : world.flags.sisterRescued ? "许宁已跟随你。带她走出病院。" : "找到妹妹许宁，带她回家。"}</p></div>
       <nav aria-label="随身物品与记录">
@@ -123,7 +120,7 @@ export function DungeonWorkspace({ game, narration }) {
       </nav>
     </div>
 
-    <section ref={sceneRef} className={`night-scene${world.anomaly ? " has-anomaly" : ""}${conversationOpen ? " has-encounter" : !reading && !state.result ? " has-input" : ""}`} aria-label={`${location.name}场景`}>
+    <section ref={sceneRef} className={`night-scene vn-stage${world.anomaly ? " has-anomaly" : ""}${state.encounter?.kind === "danger" ? " is-danger" : ""}`} aria-label={`${location.name}场景`}>
       <img key={`${world.location}:${imageAttempt}`} className={`scene-background${backgroundStatus === "ready" ? " ready" : ""}`}
         src={scene.image} alt={`永昼病院 · ${location.name}的夜间场景`} fetchPriority="high"
         onLoad={event => setBackgroundStatus(isServiceDefault(event.currentTarget) ? "pending" : "ready")}
@@ -143,87 +140,31 @@ export function DungeonWorkspace({ game, narration }) {
         <small>{world.turn}/{world.maxTurns} 次行动</small>
       </div>
       {sisterHere && <div className="scene-companion">
-        <img key={imageAttempt} src={CHARACTERS.sister.image} alt="许宁的人物形象" style={{ visibility: companionReady ? "visible" : "hidden" }}
-          onLoad={event => setCompanionReady(!isServiceDefault(event.currentTarget))}
-          onError={() => setCompanionReady(false)} />
-        <span>许宁<small>{world.flags.sisterRescued ? "跟在你身旁" : "身份已经核验"}</small></span>
+        <i aria-hidden="true">◇</i><span>许宁<small>{world.flags.sisterRescued ? "跟在你身旁" : "身份已经核验"}</small></span>
       </div>}
-
-      {!reading && !state.result && !conversationOpen && <button className="scene-hotspot"
-        style={{ left: `${scene.point[0]}%`, top: `${Math.min(scene.point[1], 32)}%` }} disabled={locked}
-        onClick={() => location.searched ? setPanel("local") : search(location.id)}>
-        <span className="hotspot-ring" aria-hidden="true" />{scene.object}<small>{location.searched ? "查看材料 · 不耗时" : "进入调查现场"}</small>
-      </button>}
 
       {character && !portraitFailed && !reading && <figure className={`scene-character${characterId === "caller" ? " is-intercom" : ""}`} key={characterId}>
-        <img key={imageAttempt} src={character.image} alt={characterId === "patrol" ? "无脸巡查员正在门外" : characterId === "sister" ? "许宁的人物形象" : characterId === "caller" ? "广播扬声器，来电者没有已核验的人物形象" : `${npc.name}的人物形象`}
+        <img key={imageAttempt} src={character.image} alt={characterId === "patrol" ? "无脸巡查员正在门外" : characterId === "sister" ? "许宁的人物形象" : characterId === "caller" ? "广播扬声器，来电者没有已核验的人物形象" : `${characterPerson?.name || "在场人物"}的人物形象`}
           onLoad={event => { if (isServiceDefault(event.currentTarget)) setPortraitFailed(true); }}
           onError={() => setPortraitFailed(true)} />
-        <figcaption>{characterId === "patrol" ? "门外的巡查员" : characterId === "sister" ? world.flags.sisterVerified ? "许宁 · 已核验身份" : "床边的女孩 · 尚待问答核验" : `${npc.name} · ${conversationOpen ? "私下交谈" : "传来的回应"}`}</figcaption>
+        <figcaption>{characterId === "patrol" ? "门外的巡查员" : characterId === "sister" ? world.flags.sisterVerified ? "许宁 · 已核验身份" : "床边的女孩 · 尚待问答核验" : `${characterPerson?.name || "传来的声音"} · ${conversationOpen ? "私下交谈" : "传来的回应"}`}</figcaption>
       </figure>}
 
-      <div className={`scene-story${conversationOpen ? " is-conversation" : !reading && !state.result ? " is-composer" : ""}`}>
-        {conversationOpen ? <DungeonEncounter game={game} narration={narration} /> : <>
-          <span className="eyebrow">{state.result ? "这一夜结束了" : reading ? "23:00 · 你推开了护士站的门" : `${location.name} · 眼前的情景`}</span>
-          <p className="scene-description">{reading ? "妹妹已经三天没有回家。你穿上临时护工的制服，混进永昼病院的夜班。现在，电梯后的楼梯消失了。" : sceneDescription(state)}</p>
-          {reading && <button className="primary" disabled={Boolean(busy)}
-            onClick={() => action("advance", {}, () => setPanel(null))}>开始夜班 →</button>}
-          {!reading && !state.result && <p className="scene-body">{state.body}</p>}
-          {!reading && !state.result && (state.lastAction?.outcome || lastEvent) && <p className="scene-event">{state.lastAction?.outcome || lastEvent.text}</p>}
-          {!reading && !state.result && state.lastAction?.intentFeedback && <p className="scene-body">
-            {state.lastAction.intentFeedback}</p>}
-          {!reading && !state.result && state.lastAction?.response && !pendingNpc && <div className="scene-spoken">
-            <span>{state.npcs.find(p => p.id === state.lastAction.response.npcId)?.name}</span>
-            <p>{state.lastAction.response.text}</p>
-          </div>}
-          {busy && <div className="scene-wait" role="status"><span className="spinner" />{busy}
-            {game.busyHint && <p className="scene-wait-explanation">{game.busyHint}</p>}</div>}
-          {!busy && pendingNpc && <div className="scene-wait" role="status"><span>行动已保存，{npc.name}的回应尚未完成。</span>
-            <button onClick={game.resumeTurns}>继续回应 · 不重复扣时</button></div>}
-          {!reading && !state.result && <DungeonConversation game={game} narration={narration} npc={npc} />}
-          {state.sceneCue && !busy && <div className="scene-reaction-retry"><span>{state.sceneCue.kind === "speech"
-            ? "这句话尚未得到回复，可以接续原话，也可以先不谈。"
-            : "人物的回应还未完成，你的行动已经留下结果。"}</span>
-            <button onClick={game.resumeTurns}>接续人物回复 · 不重复扣时</button>
-            <button onClick={() => action("silence", { cueId: state.sceneCue.id })}>继续行动</button>
-          </div>}
-        </>}
-      </div>
-      <span className="scene-atmosphere" aria-hidden="true">{scene.sound}</span>
+      {foundItems.length > 0 && <div className="vn-found" role="status">
+        <span>◇ 发现线索</span><strong>{foundItems.map(item => item.title).join("、")}</strong>
+        <button onClick={() => setPanel("found")}>查看</button><button aria-label="收好新线索" onClick={() => setFound([])}>×</button>
+      </div>}
+      <DungeonNovel game={game} narration={narration} npc={npc} location={location} scene={scene}
+        actions={visibleActions} onExecute={execute} onSearch={search} onMap={() => setPanel("map")}
+        onBook={() => setPanel("book")} onLog={() => setPanel("log")} onSpeaker={setSpeakerId} />
     </section>
 
-    {state.result ? (!deathActive && <DungeonEnding state={state} action={action} narration={narration}
-      replay={() => { narration.stopSpeech(); setDeathActive(deathCause); }} />) : <>
-      {!conversationOpen && foundItems.length > 0 && <section className="scene-found" aria-label="刚取得的线索">
-        <div className="scene-found-heading"><span className="eyebrow">你刚拿到的材料 · 阅读不耗时</span><button onClick={() => setFound([])}>收进笔记</button></div>
-        {foundItems.map(item => <article key={item.id}><h3>{item.title}</h3><p>{item.detail}</p></article>)}
-      </section>}
-      {!conversationOpen && !reading && <section className="scene-choices" aria-label="选择行动">
-        <details className="scene-affordances"><summary>看看附近能动的物件</summary>
-        <div className="scene-local-actions">
-          {!location.searched && <button disabled={locked || !location.available} onClick={() => search(location.id)}>
-            {scene.search}<small>进入现场</small></button>}
-          {visibleActions.map(item => <button key={item.id} disabled={locked || !item.available} className={item.dangerous ? "danger-choice" : ""}
-            title={item.reasons.join("；") || item.description} onClick={() => execute(item)}>
-            <span>{item.label}{item.reasons.length > 0 && <em>{item.reasons.join("；")}</em>}</span>
-            <small>{item.dangerous ? "冒险" : item.cost === 0 ? "不耗时" : "30分钟"}</small></button>)}
-          <button onClick={() => setPanel("map")}>沿走廊，去其他地方<small>打开楼层图</small></button>
-        </div>
-        </details>
-      </section>}
-      {!reading && !conversationOpen && <div className="scene-people"><span className="eyebrow">去找人 · 可以当面交谈</span>
-        {state.npcs.filter(person => person.availableTalk).map(person => <button key={person.id} disabled={locked}
-          onClick={() => {
-            action("approach", { npcId: person.id, version: state.version }); setFound([]);
-            sceneRef.current?.scrollIntoView({ block: "start", behavior: "smooth" });
-          }}>
-          <span>{person.name}</span><small>{person.role}</small></button>)}
-      </div>}
-    </>}
+    {state.result && !deathActive && <DungeonEnding state={state} action={action} narration={narration}
+      replay={() => { narration.stopSpeech(); setDeathActive(deathCause); }} />}
 
     <p className="dungeon-source">{state.case.source.attribution} <a href={state.case.source.url} target="_blank" rel="noreferrer">原作</a> · <a href={state.case.source.licenseUrl} target="_blank" rel="noreferrer">{state.case.source.license}</a></p>
 
-    {panel && <SceneDialog title={panel === "map" ? "永昼病院 · 三楼" : panel === "clues" ? "随身线索" : panel === "log" ? "这一夜的记录" : panel === "local" ? `${location.name} · 手边的材料` : "许舟 · 值班前的笔记"} onClose={() => { setPanel(null); setDestination(null); }}>
+    {panel && <SceneDialog title={panel === "map" ? "永昼病院 · 三楼" : panel === "clues" ? "随身线索" : panel === "log" ? "这一夜的记录" : panel === "found" ? "刚取得的线索" : panel === "local" ? `${location.name} · 手边的材料` : "许舟 · 值班前的笔记"} onClose={() => { setPanel(null); setDestination(null); }}>
       {panel === "book" && <><BookPanel state={state} locked={Boolean(busy)} action={action} />
         <h3>六条值班须知</h3><ol className="facts">{state.rules.map(rule => <li key={rule.id}>{rule.text}</li>)}</ol>
         <p className="muted">一次调查、行动或交涉结束，通常过去半小时。同一现场可以连续翻查、追问和私下出示材料；选择独自慢慢处理会多花时间。05:00出口开启，07:00关闭。核验需要妹妹亲口回答，带离病床仍需单独行动。</p>
@@ -238,6 +179,8 @@ export function DungeonWorkspace({ game, narration }) {
       {panel === "local" && <>{evidenceHere.length ? <EvidenceGrid items={evidenceHere.filter((item, index) => evidenceHere.findIndex(other => other.id === item.id) === index)} state={state} locked={locked} action={action} share />
         : <p>这里已经调查过，手边没有新的材料。可以去其他地点。</p>}</>}
       {panel === "log" && <NightLog state={state} narration={narration} />}
+      {panel === "found" && <>{foundItems.map(item => <article key={item.id}><h3>{item.title}</h3><p>{item.detail}</p></article>)}
+        <button onClick={() => { setFound([]); setPanel(null); }}>收好材料，回到故事</button></>}
     </SceneDialog>}
     {risk && <SceneDialog title={risk.label} onClose={() => setRisk(null)}>
       <p>{risk.description} 执行后需要当场应对门后的事。当前异常 {world.anomaly}/{world.anomalyLimit}。</p>

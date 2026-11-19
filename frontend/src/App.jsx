@@ -33,7 +33,7 @@ export default function App() {
     game.selectScript(id);
   }
 
-  return <div className={`app theme-${theme}`}>
+  return <div className={`app theme-${theme}${screen === "game" && state?.case.gameType === "dungeon" ? " is-visual-novel" : ""}`}>
     {theme === "rain" && <div className="rain" aria-hidden="true" />}
     <div className="ambient" aria-hidden="true" />
     <header className="topbar">

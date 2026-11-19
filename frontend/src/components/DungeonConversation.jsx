@@ -1,12 +1,14 @@
 import { useEffect, useRef, useState } from "react";
 
-export function DungeonConversation({ game, narration, npc }) {
+export function DungeonConversation({ game, narration, npc, mode: selectedMode, onSubmitted }) {
   const { state, busy, action, privateErrors } = game;
   const [drafts, setDrafts] = useState({});
   const [presenting, setPresenting] = useState([]);
-  const [mode, setMode] = useState("action");
+  const [fallbackMode, setMode] = useState("action");
+  const requestedMode = selectedMode ?? fallbackMode;
+  const mode = requestedMode === "speech" && npc ? "speech" : "action";
   const input = useRef(null);
-  const key = npc?.id || "scene";
+  const key = `${state.case.id}:${mode}:${mode === "speech" ? npc.id : state.world.location}`;
   const turns = state.privateChats[npc?.id] || [];
   const event = state.encounter;
   const sceneTurns = event ? turns.filter(turn => turn.encounterId === event.id) : turns;
@@ -16,10 +18,10 @@ export function DungeonConversation({ game, narration, npc }) {
   useEffect(() => { setPresenting([]); setMode("action"); }, [npc?.id, event?.id]);
 
   return <div className="scene-conversation">
-    <div className="scene-input-modes" aria-label="行动或说话">
+    {selectedMode === undefined && <div className="scene-input-modes" aria-label="行动或说话">
       <button type="button" aria-pressed={mode === "action"} onClick={() => setMode("action")}>描述我的行动</button>
       {npc && <button type="button" aria-pressed={mode === "speech"} onClick={() => setMode("speech")}>对{npc.name}说话</button>}
-    </div>
+    </div>}
     {mode === "speech" && <span className="eyebrow">只有{npc.name}听见 · 可以连续追问</span>}
     {!event && latest && mode === "speech" && <div className="scene-private-reply" aria-live="polite">
       <small>你：{latest.question}</small>
@@ -32,7 +34,7 @@ export function DungeonConversation({ game, narration, npc }) {
       if (!locked && drafts[key]?.trim()) action(mode === "speech" ? "question" : "scene-action",
         mode === "speech" ? { npcId: npc.id, question: drafts[key], evidenceIds: presenting, version: state.version }
           : { message: drafts[key], version: state.version },
-        () => { setDrafts(old => ({ ...old, [key]: "" })); setPresenting([]); });
+        () => { setDrafts(old => ({ ...old, [key]: "" })); setPresenting([]); onSubmitted?.(); });
     }}>
       {mode === "speech" && error && <p className="scene-chat-error" role="alert">{error} 输入已保留，本次交谈未扣时。</p>}
       <textarea ref={input} aria-label={mode === "speech" ? `给${npc.name}的私聊` : "描述你在现场的行动"} rows={3} maxLength={2000}
@@ -43,7 +45,8 @@ export function DungeonConversation({ game, narration, npc }) {
           onChange={event => setPresenting(old => event.target.checked ? [...old, item.id] : old.filter(id => id !== item.id))} />{item.title}</label>)}
         <small>随这句话交给对方看，其他人不会收到。</small>
       </details>}
-      <div><span>{event ? "眼前的事还没结束。你可以继续做，也可以开口。" : "人物会看见你的做法，也会记住你说的话。"}</span><button className="primary" disabled={locked || !drafts[key]?.trim()}>
+      <div><span>{mode === "speech" ? `以许舟的身份对${npc.name}说，其他人不会听见。`
+        : "描述你想尝试的做法，结果由当前现场决定。"}</span><button className="primary" disabled={locked || !drafts[key]?.trim()}>
         {busy ? "处理中…" : mode === "speech" ? "开口" : "就这样做"}</button></div>
     </form>
     {npc && turns.length > 1 && <details className="scene-conversation-history"><summary>与{npc.name}之前的谈话</summary>
