@@ -45,6 +45,7 @@
 .scene-atmosphere{position:absolute;bottom:12px;left:31px;font-size:10px;color:#9ba99a99;letter-spacing:2px}
 .scene-wait{display:flex;gap:12px;align-items:center;color:#c4d4c3;font-size:12px;flex-wrap:wrap}
 .scene-wait button{font-size:12px}
+.scene-wait .scene-wait-explanation{flex-basis:100%;margin:0;color:#b5c5b4;font-size:12px;line-height:1.7}
 .scene-story.is-conversation{max-height:72%;width:66%;bottom:35px}
 .scene-story.is-conversation{max-height:calc(100% - 170px);width:72%;padding:18px 23px}
 .night-scene.has-encounter,.night-scene.has-input{height:auto;min-height:620px;padding-top:160px;display:flex;align-items:flex-end}

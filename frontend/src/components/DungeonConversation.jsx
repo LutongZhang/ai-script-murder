@@ -44,7 +44,7 @@ export function DungeonConversation({ game, narration, npc }) {
         <small>随这句话交给对方看，其他人不会收到。</small>
       </details>}
       <div><span>{event ? "眼前的事还没结束。你可以继续做，也可以开口。" : "人物会看见你的做法，也会记住你说的话。"}</span><button className="primary" disabled={locked || !drafts[key]?.trim()}>
-        {busy ? "等待现场回应…" : mode === "speech" ? "开口" : "就这样做"}</button></div>
+        {busy ? "处理中…" : mode === "speech" ? "开口" : "就这样做"}</button></div>
     </form>
     {npc && turns.length > 1 && <details className="scene-conversation-history"><summary>与{npc.name}之前的谈话</summary>
       {turns.slice(0, -1).map((turn, index) => <article key={`${npc.id}-${index}`}>

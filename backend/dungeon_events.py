@@ -11,7 +11,7 @@ def encounter(kind, title, description, npc, choices, **values):
 
 
 def investigation(location, sister_room):
-    end = option("finish", "收好材料，离开调查现场", "本次调查共过去30分钟。", op="finish")
+    end = option("finish", "留在原地收好材料，结束调查", "本次调查共过去30分钟；不会移动到别处。", op="finish")
     scenes = {
         "station": ("交班台上的红笔", "沈青按住交班册，视线在你和备用柜之间移动。台灯下有一本红笔日志，门后还留着加固痕迹。", "head_nurse", [
             option("journal", "侧着灯光，翻看日志背页", op="inspect", evidence=["nurse_log"],
@@ -43,7 +43,7 @@ def investigation(location, sister_room):
     return encounter("search", title, description, npc, [*choices, end], location=location, source=location)
 
 
-def action_scene(action, location):
+def action_scene(action, location, flags=None):
     cancel = option("cancel", "收手，退出现场", "已经花去30分钟，没有完成这项行动。", op="cancel")
     scenes = {
         "record_name": ("落笔之前", "交班册的空栏正在变淡。沈青把红笔横在纸上，周槐的旧病案号握在你手里。", "head_nurse", [
@@ -60,8 +60,15 @@ def action_scene(action, location):
             option("unlock", "用沈青交出的钥匙打开备用柜", "需要她答应开柜。", op="execute", flags=["cabinetUnlocked"]),
             option("pry", "从铰链侧慢慢拆下柜门", "额外过去30分钟，保留工牌。", op="execute", extra=1),
             option("smash", "砸开柜门，抓起工牌", "撞击声会留下异常。", op="execute", anomaly=1, dangerous=True)]),
-        "verify_sister": ("你们两个人才知道的问答", "腕带和原始登记已经放在床边。女孩盯着你，像在等一句只有你们懂的话。广播的声音在门外停了下来。", "sister", [
-            option("confirm_identity", "把她的回答与登记、腕带逐项核对", "先在交谈中问出你们的童年问答。", op="execute", flags=["memoryConfirmed"])]),
+        "verify_sister": ("你们两个人才知道的问答",
+            "腕带和原始登记已经放在床边。" + (
+                "她已亲口答对童年问答，你可以将已得到的回答与两份材料逐项核对，无需再问。"
+                if (flags or {}).get("memoryConfirmed") else "女孩盯着你，像在等一句只有你们懂的话。"
+            ) + "广播的声音在门外停了下来。", "sister", [
+            option("confirm_identity", "把她的回答与登记、腕带逐项核对",
+                   "她的回答已确认，可直接与原始登记、床边腕带核对三项；核验不会自动安抚或带她离床。"
+                   if (flags or {}).get("memoryConfirmed") else "先在交谈中问出你们的童年问答。",
+                   op="execute", flags=["memoryConfirmed"])]),
         "rescue_sister": ("她不肯松开的床栏", "许宁确认了你，却仍抓着床栏。她的腿发软，害怕站起来后你又不见了。你可以先和她说话，也可以扶着她慢慢走。", "sister", [
             option("walk", "握住她的手，让她跟着你的步子走", "需要先让她在交谈中安定下来。", op="execute", flags=["sisterReady"]),
             option("carry", "扶住她，慢慢把她带出病床", "额外过去30分钟。", op="execute", extra=1),
@@ -86,7 +93,7 @@ def action_scene(action, location):
                      source=action, location=location)
 
 
-def threat(kind, location):
+def threat(kind, location, flags=None):
     if kind == "breaker":
         return encounter("danger", "广播回路反咬了你", "你刚合闸，安全灯没亮，广播却贴着耳膜尖叫。柜里的红线开始发热，走廊脚步正在转向这里。",
                          "coworker", [
@@ -96,16 +103,23 @@ def threat(kind, location):
             option("freeze", "按住开关，等广播自己停下来", "发热回路会留下更多异常。", op="escape", anomaly=2, dangerous=True)],
                          source="breaker", location=location)
     cover = {"station": "缩到交班台下", "archive": "贴着档案柜后", "power": "贴着接线柜后", "exit": "缩进门框阴影里"}.get(location, "贴着床底")
+    flags = flags or {}
+    description = "门边的灯闪了一下。门缝先出现一截白袖口，再出现一只没有指纹的手。"
+    description += ("残片已经封进隔离箱，但它仍在推门。"
+                    if flags.get("debrisCleared") else "它沿地上的碎片转向你，已经开始推门。")
+    description += "安全灯供电已经恢复。" if flags.get("powerRestored") else "安全灯供电仍未恢复。"
+    hide_detail = ("巡查已经推门，屏息仍会留下接触造成的一次异常。"
+                   if flags.get("debrisCleared") else "残片仍会暴露位置，留下一次异常。")
     choices = [
         *([option("latch", "压住护士站门板，把门闩推到底", "门闩仍然能挡住它。", op="escape")] if location == "station" else []),
     ]
-    return encounter("danger", "脚步停在你的门外", "门边的灯闪了一下。门缝先出现一截白袖口，再出现一只没有指纹的手。它沿地上的碎片转向你，已经开始推门。",
+    return encounter("danger", "脚步停在你的门外", description,
                      "coworker", [
         *choices,
         option("retreat", "放下手里的事，退回护士站插上门闩", "额外过去30分钟。", op="escape", retreat=True, extra=1),
         option("shield", "用陆闻加固的护栏抵住门", "消耗一次性护栏。", op="escape", shield=True),
         option("lure", "把正在播放的广播引向空走廊", "需要广播正在诱导，随后会切断它。", op="escape", flags=["lureActive"],
                flagsSet={"lureActive": False}),
-        option("hide", f"{cover}屏住呼吸，等它离开", "残片仍会暴露位置，留下一次异常。", op="escape", anomaly=1),
+        option("hide", f"{cover}屏住呼吸，等它离开", hide_detail, op="escape", anomaly=1),
         option("fight", "挥起工具，迎着白袖口撞出去", "近身接触会留下两次异常。", op="escape", anomaly=2, dangerous=True)],
                      source="patrol", location=location, paid=True)

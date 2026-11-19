@@ -170,16 +170,21 @@ export function DungeonWorkspace({ game, narration }) {
             onClick={() => action("advance", {}, () => setPanel(null))}>开始夜班 →</button>}
           {!reading && !state.result && <p className="scene-body">{state.body}</p>}
           {!reading && !state.result && (state.lastAction?.outcome || lastEvent) && <p className="scene-event">{state.lastAction?.outcome || lastEvent.text}</p>}
+          {!reading && !state.result && state.lastAction?.intentFeedback && <p className="scene-body">
+            {state.lastAction.intentFeedback}</p>}
           {!reading && !state.result && state.lastAction?.response && !pendingNpc && <div className="scene-spoken">
             <span>{state.npcs.find(p => p.id === state.lastAction.response.npcId)?.name}</span>
             <p>{state.lastAction.response.text}</p>
           </div>}
-          {busy && <p className="scene-wait" role="status"><span className="spinner" />{busy}</p>}
+          {busy && <div className="scene-wait" role="status"><span className="spinner" />{busy}
+            {game.busyHint && <p className="scene-wait-explanation">{game.busyHint}</p>}</div>}
           {!busy && pendingNpc && <div className="scene-wait" role="status"><span>行动已保存，{npc.name}的回应尚未完成。</span>
             <button onClick={game.resumeTurns}>继续回应 · 不重复扣时</button></div>}
           {!reading && !state.result && <DungeonConversation game={game} narration={narration} npc={npc} />}
-          {state.sceneCue && !busy && <div className="scene-reaction-retry"><span>人物的回应还未完成，你的行动已经留下结果。</span>
-            <button onClick={game.resumeTurns}>听他接着说</button>
+          {state.sceneCue && !busy && <div className="scene-reaction-retry"><span>{state.sceneCue.kind === "speech"
+            ? "这句话尚未得到回复，可以接续原话，也可以先不谈。"
+            : "人物的回应还未完成，你的行动已经留下结果。"}</span>
+            <button onClick={game.resumeTurns}>接续人物回复 · 不重复扣时</button>
             <button onClick={() => action("silence", { cueId: state.sceneCue.id })}>继续行动</button>
           </div>}
         </>}

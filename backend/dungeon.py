@@ -9,14 +9,14 @@ if __package__:
     from .dungeon_rules import FLAGS
     from .dungeon_events import investigation, action_scene, threat, encounter, option
     from .dungeon_presence import (affordances, person_here, SENSES, BODILY,
-                                   NPC_VISIBLE_FLAGS, physical_outcome)
+                                   ANCHORS, NPC_VISIBLE_FLAGS, physical_outcome, scene_facts)
 else:
     from game import Game, GameError
     from npc_ai import validate_reply
     from dungeon_rules import FLAGS
     from dungeon_events import investigation, action_scene, threat, encounter, option
     from dungeon_presence import (affordances, person_here, SENSES, BODILY,
-                                  NPC_VISIBLE_FLAGS, physical_outcome)
+                                  ANCHORS, NPC_VISIBLE_FLAGS, physical_outcome, scene_facts)
 
 
 class DungeonGame(Game):
@@ -46,7 +46,8 @@ class DungeonGame(Game):
         flags = data["flags"]
         reasons = []
         if any(not flags[f] for f in item.get("flags", [])):
-            reasons.append("尚未取得对方的配合" if data["encounter"]["kind"] != "danger" else "现场条件不满足")
+            reasons.append("尚未听到本人答对童年问答" if item["id"] == "confirm_identity"
+                           else "尚未取得对方的配合" if data["encounter"]["kind"] != "danger" else "现场条件不满足")
         if item.get("shield") and not flags["shield"]:
             reasons.append("没有可用的护栏")
         owned = data["hands"].get(data["player"], set()) | data["public"]
@@ -58,6 +59,18 @@ class DungeonGame(Game):
         event = data["encounter"]
         if not event:
             return None
+        if event["source"] == "patrol":
+            current = threat("patrol", event["location"], data["flags"])
+            hide_detail = next(c["detail"] for c in current["choices"] if c["id"] == "hide")
+            event = {**event, "description": current["description"],
+                     "choices": [{**c, "detail": hide_detail} if c["id"] == "hide" else c
+                                 for c in event["choices"]]}
+        elif event["source"] == "verify_sister":
+            current = self.action_scene_for("verify_sister", event["location"], data)
+            detail = next(c["detail"] for c in current["choices"] if c["id"] == "confirm_identity")
+            event = {**event, "description": current["description"],
+                     "choices": [{**c, "detail": detail} if c["id"] == "confirm_identity" else c
+                                 for c in event["choices"]]}
         return {**{k: deepcopy(event[k]) for k in ("id", "kind", "source", "title", "description", "npcId", "log", "location")},
                 "paid": event.get("paid", False),
                 "choices": [{k: item[k] for k in ("id", "label", "detail", "dangerous") if k in item}
@@ -77,23 +90,31 @@ class DungeonGame(Game):
     def investigation_for(self, location):
         return investigation(location, self.data["variant"]["sisterRoom"])
 
-    def action_scene_for(self, action_id, location):
-        return action_scene(action_id, location)
+    def action_scene_for(self, action_id, location, data=None):
+        return action_scene(action_id, location, (self.data if data is None else data)["flags"])
 
-    def cue(self, npc_id, text):
+    def cue(self, npc_id, text, *, question=None):
         if not npc_id or self.data["ending"]:
             self.data["sceneCue"] = None
             return
         self.data["sceneCue"] = {"id": str(uuid4()), "npcId": npc_id, "text": text}
+        if question is not None:
+            self.data["sceneCue"]["question"] = question
 
-    def witness(self, text, npc_id=None):
+    def witness(self, text, npc_id=None, *, evidence_ids=(), react=True):
         npc_id = npc_id or person_here(self.data)
         if npc_id:
+            ids = sorted(set(evidence_ids))
+            if ids:
+                titles = "、".join(e["title"] for e in self.evidence(ids))
+                text += f" 许舟已实际取得或收到你出示的材料：{titles}；不是尚待交换的材料。"
             records = self.data["observations"].setdefault(npc_id, [])
-            records.append({"text": text, "turn": self.data["turn"], "location": self.data["location"]})
+            records.append({"text": text, "turn": self.data["turn"], "location": self.data["location"],
+                            "playerEvidenceIds": ids})
             del records[:-30]
-            self.cue(npc_id, f"你亲眼看见许舟这样做：{text}。作出现场反应，"
-                     "可以阻拦、反问、提具体条件或动手帮忙；不要泛泛提醒谨慎。")
+            if react:
+                self.cue(npc_id, f"你亲眼看见许舟这样做：{text}。作出现场反应，"
+                         "若他说明了来意，接住他的具体目的。可以阻拦、反问、提具体条件或动手帮忙；不要泛泛提醒谨慎。")
 
     def scene_entry(self, text, *, speaker_id=None, action_label=None, evidence_ids=None):
         event = self.data["encounter"]
@@ -167,6 +188,7 @@ class DungeonGame(Game):
             state["version"] = self.version
             state["encounter"] = self.public_encounter(self.data)
             state["sceneCue"] = ({k: self.data["sceneCue"][k] for k in ("id", "npcId")}
+                                 | {"kind": "speech" if "question" in self.data["sceneCue"] else "reaction"}
                                  if self.data.get("sceneCue") else None)
             state["lastAction"] = deepcopy(self.data.get("lastAction"))
             state["body"] = BODILY[min(self.data["anomaly"], len(BODILY) - 1)]
@@ -205,7 +227,7 @@ class DungeonGame(Game):
             if data["location"] == "station" or (flags["powerRestored"] and flags["debrisCleared"]):
                 self.host(data, "巡查的脚步经过，你所在的位置安全。")
             else:
-                self.open_encounter(threat("patrol", data["location"]))
+                self.open_encounter(threat("patrol", data["location"], data["flags"]))
                 self.host(data, "巡查的白袖口出现在门缝。你必须先应对它。")
         if data["anomaly"] >= cfg["anomalyLimit"]:
             self.finish("failure", "异常达到上限，门后的影子取代了你的脚步。")
@@ -245,6 +267,8 @@ class DungeonGame(Game):
                 raise GameError("还没有找到可以交谈的本人。")
             loc = {"head_nurse": "station", "old_patient": "archive", "coworker": "power",
                    "sister": self.data["variant"]["sisterRoom"]}.get(npc_id, self.data["location"])
+            if npc_id == "sister" and self.data["flags"]["sisterRescued"]:
+                loc = self.data["location"]
             self.open_encounter(encounter("talk", f"与{self.person(npc_id)['name']}交涉",
                 self.person(npc_id)["public_profile"], npc_id,
                 [option("finish", "结束交涉，回到现场", "这次交涉共过去30分钟。", op="finish")],
@@ -275,7 +299,7 @@ class DungeonGame(Game):
             else:
                 location = (data["variant"]["sisterRoom"] if action_id in {"verify_sister", "rescue_sister"}
                             else action.get("location", data["location"]))
-                event = action_scene(action_id, location)
+                event = self.action_scene_for(action_id, location)
                 if event:
                     self.open_encounter(event)
                     if action_id == "follow_voice":
@@ -314,7 +338,7 @@ class DungeonGame(Game):
                     event["log"].append({"text": material["detail"], "evidenceIds": [material["id"]]})
                 if "bracelet" in ids:
                     event["npcId"] = "sister"
-                self.witness(item["text"], event["npcId"])
+                self.witness(item["text"], event["npcId"], evidence_ids=ids)
                 data["lastAction"] = {"action": item["label"], "outcome": item["text"],
                                       "location": data["location"]}
                 self.version += 1
@@ -352,7 +376,12 @@ class DungeonGame(Game):
             outcome = physical_outcome(event["source"], item["id"], data) if item["op"] == "execute" else None
             if outcome:
                 self.host(data, outcome)
-            self.witness(f"{item['label']}。{outcome or ''}", event["npcId"])
+            observed = f"{item['label']}。{outcome or ''}"
+            if item["op"] == "finish":
+                observed = ("许舟仍在原位置，收好实际查看过的材料，结束这次调查；没有离开或移动。"
+                            if event["kind"] == "search" else "许舟仍在原位置，结束这次交涉；没有离开或移动。")
+            self.witness(observed, event["npcId"],
+                         evidence_ids=action.get("effects", {}).get("evidence", []) if item["op"] == "execute" else [])
             data["lastAction"] = {"action": item["label"],
                                   "outcome": outcome or data["board"][-1]["text"], "location": data["location"]}
             if item.get("shield"):
@@ -383,16 +412,18 @@ class DungeonGame(Game):
             self.request_version(expected_version, required=True)
             data, version = self.snapshot()
             intents = affordances(self, data)
+            scene = self.public_encounter(data)
             context = {
                 "mode": "intent", "sessionId": data["sessionId"], "scriptId": self.case["id"],
                 "yourCharacter": {"id": "scene_intent"},
                 "lastResponseId": data["responses"].get("scene_intent"),
                 "availableIntents": intents,
-                "currentScene": self.public_encounter(data) or {
-                    "location": data["location"], "description": SENSES[data["location"]][0]},
-                "knownEvidence": self.evidence(data["hands"][data["player"]] | data["public"], data),
+                "currentScene": ({k: v for k, v in scene.items() if k != "log"} if scene else {
+                    "location": data["location"], "description": SENSES[data["location"]][0]}),
+                "currentSceneFacts": scene_facts(self, data),
+                "knownEvidence": self.evidence(
+                    (data["hands"][data["player"]] | data["public"]) - {"recruitment"}, data),
                 "world": {k: v for k, v in self.world(data).items() if k != "flags"},
-                "lastAction": data.get("lastAction"),
             }
         generated = self.generate(context, data["intentHistory"][-10:], message)
         result = validate_reply(deepcopy(generated), context)
@@ -401,24 +432,29 @@ class DungeonGame(Game):
             intent = next(i for i in intents if i["id"] == result["intentId"])
             id = intent["id"]
             event = self.data["encounter"]
+            previous_action = self.data.get("lastAction")
             self.data["responses"]["scene_intent"] = generated.get("_responseId")
             self.data["intentHistory"].append({"question": message, "response": result["reply"]})
             del self.data["intentHistory"][:-20]
             if intent.get("reasons"):
                 text = "你伸出手，又停住了。" + "；".join(intent["reasons"]) + "。眼前的人和物件还在原处。"
                 self.scene_entry(text)
+                self.scene_entry(result["reply"])
+                self.data["lastAction"] = {"action": message, "outcome": text,
+                                          "intentFeedback": result["reply"], "location": self.data["location"]}
                 self.witness(f"许舟尝试：{message}。实际没有完成，原因是{'；'.join(intent['reasons'])}。")
                 self.version += 1
                 return self.state()
             if id == "say":
                 npc_id = person_here(self.data)
                 if not npc_id:
-                    self.scene_entry("你说完，只有扬声器底下的杂音回了一声。眼前还没有能核验的本人。")
-                    self.version += 1
-                    return self.state()
-                # The private generator must run outside the engine lock.
-                self.version += 1
-                speech_version = self.version
+                    text = "你说完，只有扬声器底下的杂音回了一声。眼前还没有能核验的本人。"
+                else:
+                    text = f"你向{self.person(npc_id)['name']}开口，等对方回答。你还没有动手处理物件。"
+                    # Return the understood intent before the separate NPC request.
+                    self.cue(npc_id, text, question=message)
+                self.scene_entry(text)
+                self.data["lastAction"] = {"action": message, "outcome": text, "location": self.data["location"]}
             else:
                 if id.startswith("choice:"):
                     self.choose(event["id"], id.split(":", 1)[1], expected_version=self.version)
@@ -432,14 +468,27 @@ class DungeonGame(Game):
                     self.choose(event["id"], item["id"], expected_version=self.version)
                 elif id.startswith("move:"):
                     target = id.split(":", 1)[1]
-                    if event and target == self.data["location"]:
-                        self.scene_entry("你就在这里。灯下的物件还没收好，眼前的事仍等着你处理。")
+                    destination = next(loc["name"] for loc in self.locations if loc["id"] == target)
                     if event and target != self.data["location"]:
                         self.choose(event["id"], "finish", expected_version=self.version)
                     if not self.data["ending"] and not self.data["encounter"]:
                         self.open_encounter(self.investigation_for(target))
-                    elif self.data["encounter"] and self.data["encounter"]["kind"] == "danger":
-                        self.scene_entry("你还没走过岔口，白袖口已经挡在眼前。")
+                    if self.data["ending"]:
+                        text = self.data["board"][-1]["text"]
+                    elif self.data["encounter"]["kind"] == "danger":
+                        here = next(loc["name"] for loc in self.locations if loc["id"] == self.data["location"])
+                        text = f"你未能前往{destination}，仍在{here}。白袖口挡在眼前，必须先应对；翻查和拿取也未执行。"
+                    else:
+                        text = (f"你已到{destination}。" if not event or event["location"] != target
+                                else f"你就在{destination}，仍留在原来的现场。")
+                        owned = self.data["hands"][self.data["player"]] | self.data["public"]
+                        text += ("柜里的转床登记还没翻查，也没有拿到手。"
+                                 if target == "archive" and "roster" not in owned
+                                 else "这次没有翻查或拿取新的材料。")
+                        self.witness(f"许舟到场时说明来意：{message}。实际结果：{text}。"
+                                     "他提到的后续行为还未完成，也不代表任何人已同意帮忙。")
+                    self.scene_entry(text)
+                    self.data["lastAction"] = {"action": message, "outcome": text, "location": self.data["location"]}
                 elif id.startswith(("act:", "execute:")):
                     pieces = id.split(":")
                     if event:
@@ -460,10 +509,17 @@ class DungeonGame(Game):
                     if not self.data["ending"] and not self.data["encounter"]:
                         self.approach(id.split(":", 1)[1], expected_version=self.version)
                 else:
-                    self.physical_attempt(id, message, result["reply"])
-                self.version += 1
-                return self.state()
-        return self.private(npc_id, message, expected_version=speech_version, enter_scene=True)
+                    self.physical_attempt(id, message)
+            if self.data.get("lastAction") is previous_action or id.startswith("talk:"):
+                current = self.data["encounter"]
+                text = (f"你已进入「{current['title']}」现场。{current['description']}"
+                        if current else self.data["board"][-1]["text"])
+                self.data["lastAction"] = {"action": message, "outcome": text, "location": self.data["location"]}
+                self.scene_entry(text)
+            self.data["lastAction"]["intentFeedback"] = result["reply"]
+            self.scene_entry(result["reply"])
+            self.version += 1
+            return self.state()
 
     def mark_searched(self, event):
         loc = next(l for l in self.locations if l["id"] == event["location"])
@@ -473,7 +529,7 @@ class DungeonGame(Game):
             if loc["id"] not in self.data["searched"]:
                 self.data["searched"].append(loc["id"])
 
-    def physical_attempt(self, id, message, feedback):
+    def physical_attempt(self, id, message):
         data, event = self.data, self.data["encounter"]
         npc_id = person_here(data)
         if id in {"observe", "listen"}:
@@ -499,7 +555,7 @@ class DungeonGame(Game):
                 text = "你的声音撞在瓷砖上，一层层传向走廊。远处的脚步立即停了，又开始朝这里靠近。"
             self.witness(f"{message}。{text}", npc_id)
             self.host(data, text)
-            self.open_encounter(threat("patrol", data["location"]))
+            self.open_encounter(threat("patrol", data["location"], data["flags"]))
             # This is an unpaid disturbance, not a clock-scheduled patrol.
             data["encounter"]["paid"] = False
             data["encounter"]["npcId"] = npc_id
@@ -513,7 +569,9 @@ class DungeonGame(Game):
             self.witness(message, npc_id)
             self.tick(queue=False)
         else:
-            text = feedback
+            text = "这次尝试没有执行，位置和现场没有改变。"
+            if event and event["kind"] == "danger":
+                text += "险情仍未解除，不能靠普通移动或等待离开。"
         if id not in {"shout", "confront", "wait_here"}:
             self.scene_entry(text)
             self.witness(f"许舟尝试：{message}。眼前的结果：{text}", npc_id)
@@ -528,6 +586,10 @@ class DungeonGame(Game):
             data, version = self.snapshot()
             npc_id = cue["npcId"]
             data["currentQuestion"] = ""
+        if "question" in cue:
+            response = self.private(npc_id, cue["question"], expected_version=version, enter_scene=True)
+            return {**response, "speakerId": npc_id,
+                    "replyKey": f"{self.case['id']}:private-{npc_id}-{len(response['state']['privateChats'][npc_id]) - 1}"}
         generated = self.generate(self.context(data, npc_id, "private"), data["privateChats"][npc_id], cue["text"])
         with self.lock:
             self.check_version(version)
@@ -555,18 +617,29 @@ class DungeonGame(Game):
                 self.version += 1
             return self.state()
 
+    def memory_answer_allowed(self, data, npc_id):
+        owned = data["hands"].get(data["player"], set()) | data["public"]
+        return (npc_id == "sister" and self.can_talk(data, npc_id)
+                and {"roster", "bracelet"} <= owned
+                and "雨停了吗" in data.get("currentQuestion", ""))
+
     def npc_actions(self, data, npc_id):
-        event = data["encounter"]
         return [a for a in self.person(npc_id)["npcActions"] if not self.missing(a, data, npc_id)
-                and (a["id"] != "answer_memory" or (
-                    event and event["source"] == "verify_sister" and event["npcId"] == npc_id
-                    and data.get("currentQuestion", "").find("雨停了吗") >= 0))
+                and (a["id"] != "answer_memory" or self.memory_answer_allowed(data, npc_id))
                 and (a["id"] != "steady" or data["flags"]["sisterVerified"])]
 
     def context(self, data, npc_id, mode):
         npc = self.person(npc_id)
         visible = data["public"] | data["hands"][npc_id]
+        observations = data.get("observations", {}).get(npc_id, [])
+        received = {e for record in observations for e in record.get("playerEvidenceIds", [])}
+        for turn in data["privateChats"][npc_id]:
+            received.update(turn.get("evidenceIds", []))
+            received.update(turn.get("presentedEvidenceIds", []))
+        received.update(data.get("presentedEvidence", []))
         event = data["encounter"]
+        if event and event["source"] in {"patrol", "verify_sister"}:
+            event = self.public_encounter(data)
         return {
             "sessionId": data["sessionId"], "scriptId": self.case["id"],
             "lastResponseId": data["responses"].get(npc_id), "mode": "dungeon",
@@ -580,10 +653,19 @@ class DungeonGame(Game):
             "yourEmotion": data["emotions"].get(npc_id, npc["initial_emotion"]),
             "currentEncounter": ({k: event[k] for k in ("kind", "title", "description", "location")}
                                  if event and event["npcId"] == npc_id else None),
+            "currentSceneFacts": (scene_facts(self, data)
+                                  if npc_id in {person_here(data), ANCHORS.get(data["location"])} else None),
+            "memoryAnswerRule": (("你已亲口答对童年问答，回答已保留；可与登记、腕带直接核对三项，无需再问。"
+                                 if data["flags"]["memoryConfirmed"] else
+                                 "收到童年提问后可在床边调查或交涉中亲口回答并选择answer_memory，不必等进入核验现场。")
+                                 + "登记回答不等于核验、安抚配合或实际离床，这些仍分别执行。"
+                                 if npc_id == "sister" else None),
             "presentedEvidence": self.evidence(data.get("presentedEvidence", []), data),
             "world": {**self.world(data), "flags": {
                 key: value for key, value in data["flags"].items() if key in NPC_VISIBLE_FLAGS[npc_id]}},
-            "witnessedActions": deepcopy(data.get("observations", {}).get(npc_id, [])),
+            "witnessedActions": deepcopy(observations),
+            "playerReceivedEvidence": [{k: e[k] for k in ("id", "title")}
+                                       for e in self.evidence(sorted(received), data)],
             "relationship": data.get("relationships", {}).get(npc_id, 0),
             "rules": {"mode": self.case["mode"]["label"], "allowedActions": self.phase_config(data)["actions"],
                       "text": [r["text"] for r in self.case["dungeon"]["rules"]]},
@@ -598,13 +680,24 @@ class DungeonGame(Game):
         # Validate again at the commit boundary, including injected generators.
         prepared = self.data if prepared is None else prepared
         result = validate_reply(deepcopy(generated), self.context(prepared, npc_id, "private" if private else "public"))
-        action = next(a for a in self.npc_actions(prepared, npc_id) if a["id"] == result["npcActionId"])
+        actions = self.npc_actions(prepared, npc_id)
+        # A live, verbatim correct answer is already the memory action, even if
+        # the model labels its reply as waiting. Do not infer any other consent.
+        if (private and result["npcActionId"] == "wait"
+                and any(a["id"] == "answer_memory" for a in actions)
+                and result["reply"].strip(" \t\r\n。！!？，,?\"'“”‘’") == "伞还在槐树下"):
+            result["npcActionId"] = "answer_memory"
+        action = next(a for a in actions if a["id"] == result["npcActionId"])
         if action["id"] == "answer_memory" and "伞还在槐树下" not in result["reply"]:
             raise GameError("她的回答还没有对上童年问答，本轮未保存。", 502)
         self.data["hands"][npc_id].update(prepared.get("presentedEvidence", []))
         shared = set(result["evidenceIds"]) & self.data["hands"][npc_id]
         shared.update(action["effects"].get("evidence", []))
         self.apply_effects({**action["effects"], "evidence": sorted(shared)}, private=private)
+        received = shared | set(prepared.get("presentedEvidence", []))
+        if received:
+            self.witness("你亲自交付、分享或看见许舟出示了这些材料。", npc_id,
+                         evidence_ids=received, react=False)
         self.data["memories"][npc_id] = result["memory"]
         self.data["responses"][npc_id] = result.get("_responseId")
         self.data["emotions"][npc_id] = result["emotion"]
@@ -654,6 +747,11 @@ class DungeonGame(Game):
             self.scene_entry(f"你：{message.strip()}")
             self.scene_entry(reply["reply"], speaker_id=npc_id,
                              action_label=label, evidence_ids=shared)
+            if enter_scene:
+                self.data["lastAction"] = {
+                    "action": message, "outcome": f"你向{self.person(npc_id)['name']}说了这句话，对方已回应。",
+                    "location": self.data["location"], "response": {"npcId": npc_id, "text": reply["reply"]},
+                }
             self.data["sceneCue"] = None
             if not event:
                 self.tick(queue=False)

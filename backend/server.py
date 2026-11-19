@@ -27,7 +27,8 @@ DIST_DIR = BASE_DIR / "frontend" / "dist"
 SCRIPTS = load_scripts()
 GAMES = {script_id: (DungeonGame if script.get("gameType") == "dungeon" else Game)(script, generate_reply)
          for script_id, script in SCRIPTS.items()}
-STORE = GameStore(BASE_DIR / ".saves")
+SAVE_DIR = Path(os.getenv("NPC_SAVE_DIR") or ".saves").expanduser()
+STORE = GameStore(SAVE_DIR if SAVE_DIR.is_absolute() else BASE_DIR / SAVE_DIR)
 for saved_game in GAMES.values():
     STORE.load(saved_game)
 # Keep the original default-script entry points usable for local integrations.
@@ -206,6 +207,7 @@ def main() -> None:
     except AIError as exc:
         print(f"AI service unavailable: {exc}")
     print(f"Loaded {len(SCRIPTS)} scripts. App running on http://{host}:{port}")
+    print(f"Save directory: {STORE.directory}")
     try:
         server.serve_forever()
     except KeyboardInterrupt:

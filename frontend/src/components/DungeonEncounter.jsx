@@ -23,8 +23,10 @@ export function DungeonEncounter({ game, narration }) {
       </article>)}
     </div>}
     <DungeonConversation key={`${event.id}:${npc?.id || "scene"}`} game={game} narration={narration} npc={npc} />
-    {state.sceneCue && !busy && <div className="scene-reaction-retry"><span>对方的声音还未传来。你可以继续处理眼前的事。</span>
-      <button onClick={game.resumeTurns}>听他接着说</button>
+    {state.sceneCue && !busy && <div className="scene-reaction-retry"><span>{state.sceneCue.kind === "speech"
+      ? "这句话尚未得到回复，可以接续原话，也可以先不谈。"
+      : "对方的声音还未传来。你可以继续处理眼前的事。"}</span>
+      <button onClick={game.resumeTurns}>接续人物回复 · 不重复扣时</button>
       <button onClick={() => action("silence", { cueId: state.sceneCue.id })}>先做眼前的事</button>
     </div>}
     <details className="scene-affordances"><summary>{event.kind === "danger" ? "眼前可以怎样应对" : "看看眼前能动的物件"}</summary>
@@ -36,6 +38,7 @@ export function DungeonEncounter({ game, narration }) {
       </button>)}
     </div>
     </details>
-    {busy && <p className="scene-wait" role="status"><span className="spinner" />{busy}</p>}
+    {busy && <div className="scene-wait" role="status"><span className="spinner" />{busy}
+      {game.busyHint && <p className="scene-wait-explanation">{game.busyHint}</p>}</div>}
   </div>;
 }

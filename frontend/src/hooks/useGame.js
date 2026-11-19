@@ -8,10 +8,28 @@ export function useGame(onReply) {
   const [scripts, setScripts] = useState([]);
   const [screen, setScreen] = useState("library");
   const [busy, setBusy] = useState("");
+  const [busyHint, setBusyHint] = useState("");
   const [error, setError] = useState("");
   const [privateErrors, setPrivateErrors] = useState({});
   const [initiativeError, setInitiativeError] = useState("");
   const busyRef = useRef(false);
+  const waitTimer = useRef(null);
+
+  useEffect(() => () => window.clearTimeout(waitTimer.current), []);
+
+  function beginBusy(message, hint = "请求仍在处理中，并未取消。请求结束前不能重复提交；已有材料与谈话仍可阅读。") {
+    window.clearTimeout(waitTimer.current);
+    setBusy(message);
+    setBusyHint("");
+    waitTimer.current = window.setTimeout(() => setBusyHint(hint), 10000);
+  }
+
+  function endBusy() {
+    window.clearTimeout(waitTimer.current);
+    setBusy("");
+    setBusyHint("");
+    busyRef.current = false;
+  }
 
   useEffect(() => {
     let cancelled = false;
@@ -45,7 +63,7 @@ export function useGame(onReply) {
   async function selectScript(id) {
     if (busyRef.current) return;
     busyRef.current = true;
-    setBusy("正在打开剧本…");
+    beginBusy("正在打开剧本…");
     setError("");
     try {
       const data = await getState(id);
@@ -54,7 +72,7 @@ export function useGame(onReply) {
       try { localStorage.setItem(STORAGE_KEY, id); } catch { /* Storage is optional. */ }
       setScreen(data.player ? "game" : "lobby");
     } catch (err) { setError(err.message); }
-    finally { setBusy(""); busyRef.current = false; }
+    finally { endBusy(); }
   }
 
   async function completeTurns(data) {
@@ -62,7 +80,12 @@ export function useGame(onReply) {
     while (current.pendingSpeakers.length || current.sceneCue) {
       const cue = current.sceneCue;
       const person = current.roles.find((role) => role.id === (cue?.npcId || current.pendingSpeakers[0]));
-      setBusy(current.phaseKind === "accusation" ? `${person.name}正在秘密指认…` : `${person.name}正在斟酌发言…`);
+      const speech = cue?.kind === "speech";
+      beginBusy(current.case.gameType === "dungeon"
+        ? speech ? `${person.name}正在斟酌你的话，本次交谈尚未完成…`
+          : `本次现场结果已保存，${person.name}正在斟酌回应…`
+        : current.phaseKind === "accusation" ? `${person.name}正在秘密指认…` : `${person.name}正在斟酌发言…`,
+      "真实人物回复仍在生成，请求并未取消。你可以阅读已取得材料与已有谈话、试听已有发言；改变现场或重试需等本次请求结束。失败后只接续未完成的回复，不重做已保存行动，也不额外扣时。");
       const response = await request(cue ? "scene-turn" : "ai-turn",
         { scriptId: current.case.id, ...(cue ? { cueId: cue.id } : {}) });
       current = response.state;
@@ -70,6 +93,7 @@ export function useGame(onReply) {
       if (response.reply) onReply(response.replyKey || `${current.case.id}:board-${current.board.at(-1).id}`, response.reply,
         { ...current.roles.find((role) => role.id === (response.speakerId || current.board.at(-1).speakerId)), scriptId: current.case.id });
     }
+    return current;
   }
 
   async function action(path, body = {}, onSuccess) {
@@ -77,20 +101,30 @@ export function useGame(onReply) {
     const scriptId = state.case.id;
     const errorKey = `${scriptId}:${body.npcId}`;
     busyRef.current = true;
-    setBusy(path === "question" ? "对方正在听你说话…" : path === "scene-action" ? "你走近了现场…" : "正在处理…");
+    beginBusy(path === "question" ? "对方正在斟酌你的话，本次交谈尚未完成…"
+      : path === "scene-action" ? "正在理解你的行动，尚未执行…"
+      : path === "choice" || path === "act" || path === "search" || path === "approach"
+        ? "正在提交现场操作，尚未确认结果…" : "正在处理…",
+    path === "scene-action"
+      ? "动作请求仍在处理中，页面尚未收到执行结果。你可以阅读随身材料与已有谈话；请求结束前不能再提交行动或重试。页面没有取消请求。"
+      : "请求仍在处理中，并未取消。本次结果尚未确认，你可以阅读已取得材料或已有谈话；请等请求结束后再行动或重试。");
     setError("");
     if (path === "question") setPrivateErrors((old) => ({ ...old, [errorKey]: "" }));
+    let saved = false;
+    let awaitingSpeech = false;
     try {
       const response = await request(path, { ...body, scriptId });
       const data = response.state || response;
       saveState(data);
+      saved = true;
+      awaitingSpeech = path === "scene-action" && data.sceneCue?.kind === "speech";
       if (path === "start" || path === "start-killer") setScreen("game");
       if (path === "reset") {
         setScreen("lobby");
         setInitiativeError("");
         setPrivateErrors((old) => Object.fromEntries(Object.entries(old).filter(([key]) => !key.startsWith(`${scriptId}:`))));
       }
-      onSuccess?.(data);
+      if (!awaitingSpeech) onSuccess?.(data);
       if (path === "question") {
         onReply(`${scriptId}:private-${body.npcId}-${data.privateChats[body.npcId].length - 1}`, response.reply,
           { ...data.roles.find((role) => role.id === body.npcId), scriptId });
@@ -100,12 +134,15 @@ export function useGame(onReply) {
         onReply(`${scriptId}:private-${invitation.npcId}-${data.privateChats[invitation.npcId].length - 1}`, response.reply,
           { ...data.roles.find((role) => role.id === invitation.npcId), scriptId });
       }
-      await completeTurns(data);
+      const completed = await completeTurns(data);
+      if (awaitingSpeech) onSuccess?.(completed);
     } catch (err) {
       if (path === "question") setPrivateErrors((old) => ({ ...old, [errorKey]: err.message }));
-      else setError(err.message);
+      else setError(saved && state.case.gameType === "dungeon"
+        ? `${awaitingSpeech ? "这句话的回复尚未完成，输入已保留；本次人物效果未提交。" : "现场结果已保存，人物回应尚未完成；不要重做原行动。"} ${err.message}`
+        : err.message);
       try { saveState(await getState(scriptId)); } catch { /* Keep last known state. */ }
-    } finally { setBusy(""); busyRef.current = false; }
+    } finally { endBusy(); }
   }
 
   async function resumeTurns() {
@@ -115,9 +152,10 @@ export function useGame(onReply) {
     setError("");
     try { await completeTurns(state); }
     catch (err) {
-      setError(err.message);
+      setError(state.case.gameType === "dungeon"
+        ? `人物回复仍未完成；已保存的现场结果不会重做。 ${err.message}` : err.message);
       try { saveState(await getState(scriptId)); } catch { /* Keep last known state. */ }
-    } finally { setBusy(""); busyRef.current = false; }
+    } finally { endBusy(); }
   }
 
   async function openLibrary() {
@@ -133,7 +171,7 @@ export function useGame(onReply) {
     if (busyRef.current || !state?.allowedActions.includes("initiative")) return;
     busyRef.current = true;
     const scriptId = state.case.id;
-    setBusy(`${state.initiativeQueue?.length || 0}位角色正在同时考虑是否找你私聊…`);
+    beginBusy(`${state.initiativeQueue?.length || 0}位角色正在同时考虑是否找你私聊…`);
     setInitiativeError("");
     try {
       const response = await request("initiative", { scriptId });
@@ -142,7 +180,7 @@ export function useGame(onReply) {
     } catch (err) {
       setInitiativeError(err.message);
       try { saveState(await getState(scriptId)); } catch { /* Keep last known state. */ }
-    } finally { setBusy(""); busyRef.current = false; }
+    } finally { endBusy(); }
   }
 
   useEffect(() => {
@@ -157,6 +195,6 @@ export function useGame(onReply) {
     return () => window.clearTimeout(timer);
   }, [state, screen, busy, initiativeError]);
 
-  return { state, scripts, screen, busy, error, privateErrors, action,
+  return { state, scripts, screen, busy, busyHint, error, privateErrors, action,
     selectScript, openLibrary, resumeTurns, initiativeError, assessInitiative };
 }
